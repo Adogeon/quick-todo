@@ -6,13 +6,17 @@
 }
 
 form {
-  width:100%;
   display: flex;
-  gap: 0 1rem;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5em;
+  margin: 0;
 }
 
 form > input {
-  padding: 1rem 0.5rem;
+  flex: 1;
+  padding: 1em;
+  font-size: 1em;
 }
 
 ul {
@@ -27,4 +31,83 @@ li {
   border: 1px solid white;
   padding: 0.5rem 1rem;
   text-align: start;
+}
+
+.icon-button {
+  border: none;
+  padding: 0.25em;
+  background: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 2.25em;
+  height: 2.25em;
+  transition: background-color 0.25s, color 0.25s;
+}
+
+.icon-button:hover {
+  background-color: #333; /* Slightly lighter background on hover */
+}
+
+.icon {
+  width: 1em;
+  height: 1em;
+  color: #fff; /* White color for the icons */
+  transition: color 0.25s;
+}
+
+.icon-button:hover .icon {
+  color: #f0f0f0; /* Lighter color on hover */
+}
+
+.add-button {
+  width: 3em; 
+  height: 3em; 
+  padding: 0.75em; 
+}
+
+.add-icon {
+  width: 2em; 
+  height: 2em; 
+}
+
+.task {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5em;
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.task.done {
+  text-decoration: line-through;
+}
+
+
+.task-buttons {
+  display: none;
+  position: absolute;
+  right: 0;
+  margin: 0.5em;
+  gap: 0.5em; /* Space between the buttons */
+}
+
+.task:hover .task-buttons {
+  display: flex;
+}
+.task.done:hover .task-buttons {
+  display: none;
+}
+
+.separator {
+  border-bottom: 1px solid #999;
+  margin: 1.5em 0.75em;
+}
+
+.separator.thick {
+  border-bottom: 2px solid #aaa;
+  margin: 1.5em 0 2em 0;
 }

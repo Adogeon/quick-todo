@@ -14,7 +14,6 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-
 body {
   margin: 0;
   display: flex;
@@ -33,13 +32,10 @@ button {
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
 }
 
 @media (prefers-color-scheme: light) {
