@@ -1,9 +1,9 @@
 {
   "name": "quick-todo",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.5.0",
   "type": "module",
-  "homepage":"https://adogeon.github.io/quick-todo",
+  "homepage": "https://adogeon.github.io/quick-todo",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
