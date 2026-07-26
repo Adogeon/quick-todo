@@ -1,6 +1,7 @@
 import { useState, type FormEvent, type ChangeEvent } from "react";
 import { PlusIcon } from "@heroicons/react/24/outline";
-import Task from "./component/Task";
+import type { Task } from "../types/Task";
+import TaskItem from "./component/Task";
 import "./App.css";
 
 const useAddNewTask = () => {
@@ -59,7 +60,7 @@ function App() {
           {taskList.map((task, index) => {
             return (
               <li key={index}>
-                <Task
+                <TaskItem
                   name={task}
                   handleDelete={() => {
                     onDelete(index);
