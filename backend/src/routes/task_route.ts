@@ -1,10 +1,14 @@
 import Express from "express";
 import { type Request, type Response } from "express";
+import { getAllTask } from "../orm/task_query.js";
 
-let route = Express();
+const route = Express();
 
 //get by id
-route.get("/",);
+route.get("/", async (req: Request, res: Response) => {
+    const result = await getAllTask();
+    res.status(200).json(result);
+});
 
 //get all within parameter
 
