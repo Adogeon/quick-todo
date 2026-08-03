@@ -14,14 +14,14 @@ export const getAllTask = async () => {
 
 export const createNewTask = async (task: TaskUpdate) => {
     const client = await pool.connect();
-    const query = format("INSERT INTO Task (label) VALUES (%L)", task.label);
+    const query = format("INSERT INTO Tasks (label) VALUES (%L)", task.label);
     const result = await client.query(query);
     client.release();
     return result.rows;
 
 }
 
-export const selectTaskById = async (id: string) => {
+export const selectTaskById = async (id: string | string[]) => {
     const client = await pool.connect();
     const query = format("SELECT * FROM Tasks WHERE id= %L", id);
     const result = await client.query(query);
@@ -30,7 +30,7 @@ export const selectTaskById = async (id: string) => {
 };
 
 
-export const updateTaskById = async (id: string, update: TaskUpdate) => {
+export const updateTaskById = async (id: string | string[], update: TaskUpdate) => {
     const client = await pool.connect();
     const query = format("UPDATE Tasks SET label=%L WHERE id=%L", update.label, id);
     const result = await client.query(query);
@@ -38,7 +38,7 @@ export const updateTaskById = async (id: string, update: TaskUpdate) => {
     return result.rows;
 };
 
-export const deleteTaskById = async (id: string) => {
+export const deleteTaskById = async (id: string | string[]) => {
     const client = await pool.connect();
     const query = format("DELETE FROM Tasks WHERE id=%L", id);
     const result = await client.query(query);
