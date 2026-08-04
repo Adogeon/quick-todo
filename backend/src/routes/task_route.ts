@@ -12,16 +12,31 @@ route.get("/", async (req: Request, res: Response) => {
 
 //get by id
 route.get('/:id', async (req: Request, res: Response) => {
-    //const requet_id = req.params.id ?? "";
-    //const result = await selectTaskById(requet_id);
-    //res.status(200).json(result);
-
+    const { id } = req.params;
+    const result = await selectTaskById(id ?? "");
+    res.status(200).json(result);
 })
 
 //create 
+route.post('/', async (req: Request, res: Response) => {
+    const { data } = req.body;
+    const result = await createNewTask(data);
+    res.status(200).json(result);
+})
 
 //update
+route.put('/:id', async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { data } = req.body;
+    const result = await updateTaskById(id ?? "", data);
+    res.status(200).json(result);
+})
 
 //delete
+route.delete('/:id', async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await deleteTaskById(id ?? "");
+    res.status(200).json(result);
+})
 
 export default route;
