@@ -82,7 +82,7 @@ function App() {
               {doneList.map((task, index) => {
                 return (
                   <li key={index}>
-                    <Task name={task} done />
+                    <TaskItem name={task} done />
                   </li>
                 );
               })}
