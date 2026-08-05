@@ -61,13 +61,14 @@ function App() {
             return (
               <li key={index}>
                 <TaskItem
-                  name={task}
+                  label={task}
                   handleDelete={() => {
                     onDelete(index);
                   }}
                   handleDone={() => {
                     onDone(index);
                   }}
+                  isDone={false}
                 />
               </li>
             );
@@ -82,7 +83,7 @@ function App() {
               {doneList.map((task, index) => {
                 return (
                   <li key={index}>
-                    <TaskItem name={task} done />
+                    <TaskItem label={task} isDone />
                   </li>
                 );
               })}

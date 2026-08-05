@@ -2,13 +2,13 @@ import { TrashIcon, CheckIcon } from "@heroicons/react/24/outline";
 import { type MouseEvent } from "react";
 
 interface TaskProps {
-  name: string;
+  label: string;
   handleDelete?: (e: MouseEvent) => void;
   handleDone?: (e: MouseEvent) => void;
-  done?: boolean;
+  isDone?: boolean;
 }
 
-const Task = (props: TaskProps) => {
+const TaskItem = (props: TaskProps) => {
   const handleDeleteClick = (e: MouseEvent) => {
     e.stopPropagation();
     if (window.confirm("Do you want to delete this task ?")) {
@@ -22,8 +22,9 @@ const Task = (props: TaskProps) => {
   };
 
   return (
-    <div className={`task ${props.done ? "done" : ""}`}>
-      <span>{props.name}</span>
+    <div className={`task ${props.isDone ? "done" : ""}`}>
+      <input type="checkbox" onClick={handleDoneClick} checked={props.isDone} />
+      <span>{props.label}</span>
       <span className="task-buttons">
         <button
           onClick={handleDeleteClick}
@@ -32,16 +33,9 @@ const Task = (props: TaskProps) => {
         >
           <TrashIcon className="icon" />
         </button>
-        <button
-          onClick={handleDoneClick}
-          className="icon-button"
-          aria-label="Mark done"
-        >
-          <CheckIcon className="icon" />
-        </button>
       </span>
     </div>
   );
 };
 
-export default Task;
+export default TaskItem;
