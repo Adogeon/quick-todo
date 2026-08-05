@@ -12,9 +12,13 @@ route.get("/", async (req: Request, res: Response) => {
 
 //get by id
 route.get('/:id', async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const result = await selectTaskById(id ?? "");
-    res.status(200).json(result);
+    try {
+        const { id } = req.params;
+        const result = await selectTaskById(id ?? "");
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(404).json({ error: err })
+    }
 })
 
 //create 
@@ -26,10 +30,14 @@ route.post('/', async (req: Request, res: Response) => {
 
 //update
 route.put('/:id', async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const { data } = req.body;
-    const result = await updateTaskById(id ?? "", data);
-    res.status(200).json(result);
+    try {
+        const { id } = req.params;
+        const { data } = req.body;
+        const result = await updateTaskById(id ?? "", data);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(404).json({ error: err })
+    }
 })
 
 //delete
