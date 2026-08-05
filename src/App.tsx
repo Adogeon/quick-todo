@@ -1,38 +1,38 @@
-import { useState, type FormEvent, type ChangeEvent } from "react";
-import { PlusIcon } from "@heroicons/react/24/outline";
-import type { Task } from "../types/Task";
-import TaskItem from "./component/Task";
-import "./App.css";
+import { useState, type SubmitEvent, type ChangeEvent } from 'react'
+import { PlusIcon } from '@heroicons/react/24/outline'
+import type { Task } from '../types/Task'
+import TaskItem from './component/Task'
+import './App.css'
 
 const useAddNewTask = () => {
-  const [newTask, setNewTask] = useState("");
+  const [newTask, setNewTask] = useState('')
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setNewTask(e.currentTarget.value);
-  };
-  const reset = () => setNewTask("");
-  return { newTask, handleChange, reset };
-};
+    setNewTask(e.currentTarget.value)
+  }
+  const reset = () => setNewTask('')
+  return { newTask, handleChange, reset }
+}
 
 function App() {
-  const [taskList, setTaskList] = useState(["Task 1", "Task 2"]);
-  const [doneList, setDoneList] = useState<string[]>([]);
-  const { newTask, handleChange, reset } = useAddNewTask();
+  const [taskList, setTaskList] = useState(['Task 1', 'Task 2'])
+  const [doneList, setDoneList] = useState<string[]>([])
+  const { newTask, handleChange, reset } = useAddNewTask()
 
-  const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (newTask.trim() === "") return;
-    setTaskList((prev) => [...prev, newTask]);
-    reset();
-  };
+  const handleFormSubmit = (e: SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (newTask.trim() === '') return
+    setTaskList((prev) => [...prev, newTask])
+    reset()
+  }
 
   const onDelete = (index: number) => {
-    setTaskList((prev) => prev.filter((_, i) => i !== index));
-  };
+    setTaskList((prev) => prev.filter((_, i) => i !== index))
+  }
 
   const onDone = (index: number) => {
-    setDoneList((prev) => [...prev, taskList[index]]);
-    setTaskList((prev) => prev.filter((_, i) => i !== index));
-  };
+    setDoneList((prev) => [...prev, taskList[index]])
+    setTaskList((prev) => prev.filter((_, i) => i !== index))
+  }
 
   return (
     <>
@@ -63,15 +63,15 @@ function App() {
                 <TaskItem
                   label={task}
                   handleDelete={() => {
-                    onDelete(index);
+                    onDelete(index)
                   }}
                   handleDone={() => {
-                    onDone(index);
+                    onDone(index)
                   }}
                   isDone={false}
                 />
               </li>
-            );
+            )
           })}
         </ul>
       </section>
@@ -85,14 +85,14 @@ function App() {
                   <li key={index}>
                     <TaskItem label={task} isDone />
                   </li>
-                );
+                )
               })}
             </ul>
           </section>
         </>
       ) : null}
     </>
-  );
+  )
 }
 
-export default App;
+export default App
