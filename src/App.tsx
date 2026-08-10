@@ -14,14 +14,18 @@ const useAddNewTask = () => {
 }
 
 function App() {
-  const [taskList, setTaskList] = useState(['Task 1', 'Task 2'])
-  const [doneList, setDoneList] = useState<string[]>([])
+  const [taskList, setTaskList] = useState<Task[]>([
+    { label: 'Task 1', isDone: false },
+    { label: 'Task 2', isDone: false },
+  ])
+  const [doneList, setDoneList] = useState<Task[]>([])
   const { newTask, handleChange, reset } = useAddNewTask()
 
   const handleFormSubmit = (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (newTask.trim() === '') return
-    setTaskList((prev) => [...prev, newTask])
+    let newTaskObj: Task = { label: newTask, isDone: false }
+    setTaskList((prev) => [...prev, newTaskObj])
     reset()
   }
 
@@ -29,9 +33,16 @@ function App() {
     setTaskList((prev) => prev.filter((_, i) => i !== index))
   }
 
-  const onDone = (index: number) => {
-    setDoneList((prev) => [...prev, taskList[index]])
-    setTaskList((prev) => prev.filter((_, i) => i !== index))
+  const onDone = (index: number, list: 'TODO' | 'DONE') => {
+    if (list == 'TODO') {
+      let taskObj: Task = taskList[index]
+      setDoneList((prev) => [...prev, taskObj])
+      setTaskList((prev) => prev.filter((_, i) => i !== index))
+    } else if (list == 'DONE') {
+      let taskObj: Task = doneList[index]
+      setTaskList((prev) => [...prev, taskObj])
+      setDoneList((prev) => prev.filter((_, i) => i !== index))
+    }
   }
 
   return (
@@ -61,12 +72,12 @@ function App() {
             return (
               <li key={index}>
                 <TaskItem
-                  label={task}
+                  label={task.label}
                   handleDelete={() => {
                     onDelete(index)
                   }}
                   handleDone={() => {
-                    onDone(index)
+                    onDone(index, 'TODO')
                   }}
                   isDone={false}
                 />
@@ -83,7 +94,11 @@ function App() {
               {doneList.map((task, index) => {
                 return (
                   <li key={index}>
-                    <TaskItem label={task} isDone />
+                    <TaskItem
+                      label={task.label}
+                      isDone
+                      handleDone={() => onDone(index, 'DONE')}
+                    />
                   </li>
                 )
               })}
