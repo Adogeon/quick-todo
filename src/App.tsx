@@ -1,8 +1,14 @@
-import { useState, type SubmitEvent, type ChangeEvent } from 'react'
+import {
+  useState,
+  useEffect,
+  useMemo,
+  type SubmitEvent,
+  type ChangeEvent,
+} from 'react'
 import { PlusIcon } from '@heroicons/react/24/outline'
-import type { Task } from '../types/Task'
 import TaskItem from './component/Task'
 import './App.css'
+import { taskDb, type Task } from './services/localdb.js'
 
 const useAddNewTask = () => {
   const [newTask, setNewTask] = useState('')
@@ -14,18 +20,58 @@ const useAddNewTask = () => {
 }
 
 function App() {
-  const [taskList, setTaskList] = useState<Task[]>([
-    { label: 'Task 1', isDone: false },
-    { label: 'Task 2', isDone: false },
-  ])
-  const [doneList, setDoneList] = useState<Task[]>([])
+  const [taskList, setTaskList] = useState<Task[]>([])
+  const [loading, setLoading] = useState(true)
+  const todoList = useMemo(
+    () => taskList.filter((task) => !task.isDone),
+    [taskList],
+  )
+  const doneList = useMemo(
+    () => taskList.filter((task) => task.isDone),
+    [taskList],
+  )
   const { newTask, handleChange, reset } = useAddNewTask()
 
-  const handleFormSubmit = (e: SubmitEvent<HTMLFormElement>) => {
+  const loadTasks = async () => {
+    try {
+      setLoading(true)
+      const data = await taskDb.getAll()
+      data.sort((a, b) => b.createdAt - a.createdAt)
+      setTaskList(data)
+    } catch (error) {
+      console.error('Failed to laod todos: ', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadTasks()
+
+    return () => {
+      taskDb.close()
+    }
+  }, [])
+
+  const handleFormSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (newTask.trim() === '') return
-    let newTaskObj: Task = { label: newTask, isDone: false }
-    setTaskList((prev) => [...prev, newTaskObj])
+    let newTaskObj: Task = {
+      id: crypto.randomUUID(),
+      label: newTask,
+      isDone: false,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      synced: false,
+    }
+
+    try {
+      setTaskList((prev) => [newTaskObj, ...prev])
+      await taskDb.save(newTaskObj)
+    } catch (error) {
+      console.error('failed to add todo: ', error)
+    }
+
     reset()
   }
 
@@ -33,16 +79,21 @@ function App() {
     setTaskList((prev) => prev.filter((_, i) => i !== index))
   }
 
-  const onDone = (index: number, list: 'TODO' | 'DONE') => {
-    if (list == 'TODO') {
-      let taskObj: Task = taskList[index]
-      setDoneList((prev) => [...prev, taskObj])
-      setTaskList((prev) => prev.filter((_, i) => i !== index))
-    } else if (list == 'DONE') {
-      let taskObj: Task = doneList[index]
-      setTaskList((prev) => [...prev, taskObj])
-      setDoneList((prev) => prev.filter((_, i) => i !== index))
+  const onDone = async (index: number) => {
+    const taskObj: Task = taskList[index]
+    const update = {
+      ...taskObj,
+      isDone: !taskObj.isDone,
+      updatedAt: Date.now(),
     }
+
+    setTaskList((prev) => {
+      const updateList = [...prev]
+      updateList[index] = update
+      return updateList
+    })
+
+    await taskDb.save(update)
   }
 
   return (
@@ -68,7 +119,7 @@ function App() {
       <div className="separator thick" />
       <section id="task-list">
         <ul>
-          {taskList.map((task, index) => {
+          {todoList.map((task, index) => {
             return (
               <li key={index}>
                 <TaskItem
@@ -77,7 +128,7 @@ function App() {
                     onDelete(index)
                   }}
                   handleDone={() => {
-                    onDone(index, 'TODO')
+                    onDone(index)
                   }}
                   isDone={false}
                 />
@@ -97,7 +148,7 @@ function App() {
                     <TaskItem
                       label={task.label}
                       isDone
-                      handleDone={() => onDone(index, 'DONE')}
+                      handleDone={() => onDone(index)}
                     />
                   </li>
                 )

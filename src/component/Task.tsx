@@ -1,29 +1,33 @@
-import { TrashIcon, CheckIcon } from "@heroicons/react/24/outline";
-import { type MouseEvent } from "react";
+import { TrashIcon, CheckIcon } from '@heroicons/react/24/outline'
+import { type MouseEvent, type ChangeEvent } from 'react'
 
 interface TaskProps {
-  label: string;
-  handleDelete?: (e: MouseEvent) => void;
-  handleDone?: (e: MouseEvent) => void;
-  isDone?: boolean;
+  label: string
+  handleDelete?: (e: MouseEvent) => void
+  handleDone?: (e: ChangeEvent) => void
+  isDone?: boolean
 }
 
 const TaskItem = (props: TaskProps) => {
   const handleDeleteClick = (e: MouseEvent) => {
-    e.stopPropagation();
-    if (window.confirm("Do you want to delete this task ?")) {
-      props.handleDelete?.(e);
+    e.stopPropagation()
+    if (window.confirm('Do you want to delete this task ?')) {
+      props.handleDelete?.(e)
     }
-  };
+  }
 
-  const handleDoneClick = (e: MouseEvent) => {
-    e.stopPropagation();
-    props.handleDone?.(e);
-  };
+  const handleDoneClick = (e: ChangeEvent) => {
+    e.stopPropagation()
+    props.handleDone?.(e)
+  }
 
   return (
-    <div className={`task ${props.isDone ? "done" : ""}`}>
-      <input type="checkbox" onClick={handleDoneClick} checked={props.isDone} />
+    <div className={`task ${props.isDone ? 'done' : ''}`}>
+      <input
+        type="checkbox"
+        onChange={handleDoneClick}
+        checked={props.isDone}
+      />
       <span>{props.label}</span>
       <span className="task-buttons">
         <button
@@ -35,7 +39,7 @@ const TaskItem = (props: TaskProps) => {
         </button>
       </span>
     </div>
-  );
-};
+  )
+}
 
-export default TaskItem;
+export default TaskItem
