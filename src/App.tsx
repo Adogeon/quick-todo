@@ -62,7 +62,7 @@ function App() {
       isDone: false,
       createdAt: Date.now(),
       updatedAt: Date.now(),
-      synced: false,
+      synced: 0,
     }
 
     try {
@@ -75,25 +75,29 @@ function App() {
     reset()
   }
 
-  const onDelete = (index: number) => {
-    setTaskList((prev) => prev.filter((_, i) => i !== index))
+  const onDelete = async (taskId: string) => {
+    try {
+      await taskDb.delete(taskId)
+      setTaskList((prev) => prev.filter((t) => t.id !== taskId))
+    } catch (error) {
+      console.log('Failed to delete task:', error)
+    }
   }
 
-  const onDone = async (index: number) => {
-    const taskObj: Task = taskList[index]
-    const update = {
-      ...taskObj,
-      isDone: !taskObj.isDone,
-      updatedAt: Date.now(),
+  const onDone = async (taskId: string) => {
+    try {
+      let taskObj: Task | undefined = taskList.find((t) => t.id === taskId)
+      if (!taskObj) throw Error("Can't find the task with id")
+      const update = {
+        ...taskObj,
+        isDone: !taskObj.isDone,
+        updatedAt: Date.now(),
+      }
+      await taskDb.save(update)
+      setTaskList((prev) => prev.map((t) => (t.id === update.id ? update : t)))
+    } catch (error) {
+      console.log('Faild to update task:', error)
     }
-
-    setTaskList((prev) => {
-      const updateList = [...prev]
-      updateList[index] = update
-      return updateList
-    })
-
-    await taskDb.save(update)
   }
 
   return (
@@ -125,10 +129,10 @@ function App() {
                 <TaskItem
                   label={task.label}
                   handleDelete={() => {
-                    onDelete(index)
+                    onDelete(task.id)
                   }}
                   handleDone={() => {
-                    onDone(index)
+                    onDone(task.id)
                   }}
                   isDone={false}
                 />
@@ -148,7 +152,8 @@ function App() {
                     <TaskItem
                       label={task.label}
                       isDone
-                      handleDone={() => onDone(index)}
+                      handleDelete={() => onDelete(task.id)}
+                      handleDone={() => onDone(task.id)}
                     />
                   </li>
                 )

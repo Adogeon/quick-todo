@@ -1,6 +1,7 @@
 import ReactDOM from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { routeTree } from './routeTree.gen'
+import { startSync } from './services/sync'
 
 const router = createRouter({
   routeTree,
@@ -13,6 +14,8 @@ declare module '@tanstack/react-router' {
     router: typeof router
   }
 }
+
+startSync(10000)
 
 const rootElement = document.getElementById('app')!
 

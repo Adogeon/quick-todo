@@ -4,7 +4,7 @@ export interface Task {
     isDone: boolean,
     createdAt: number
     updatedAt: number
-    synced: boolean
+    synced: number
     serverId?: string
 }
 
@@ -49,6 +49,19 @@ class TaskDatabase {
             const transaction = db.transaction('tasks', 'readonly')
             const store = transaction.objectStore('tasks')
             const request = store.getAll()
+
+            request.onsuccess = () => resolve(request.result)
+            request.onerror = () => reject(request.error)
+        })
+    }
+
+    async getUnsync(): Promise<Task[]> {
+        const db = await this.init()
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction('tasks', 'readonly')
+            const store = transaction.objectStore('tasks')
+            const index = store.index('synced')
+            const request = index.getAll(0)
 
             request.onsuccess = () => resolve(request.result)
             request.onerror = () => reject(request.error)
