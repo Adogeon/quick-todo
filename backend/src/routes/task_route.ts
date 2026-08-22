@@ -1,6 +1,6 @@
 import Express from "express";
 import { type Request, type Response } from "express";
-import { getAllTask, selectTaskById, updateTaskById, createNewTask, deleteTaskById } from "../orm/task_query.js";
+import { getAllTask, selectTaskById, updateTaskById, createNewTask, deleteTaskById, syncTask } from "../orm/task_query.js";
 
 const route = Express();
 
@@ -47,4 +47,28 @@ route.delete('/:id', async (req: Request, res: Response) => {
     res.status(200).json(result);
 })
 
+//sync
+route.post('/sync', async (req: Request, res: Response) => {
+    try {
+        const { tasks } = req.body
+        if (!tasks || !Array.isArray(tasks)) {
+            res.status(400).json({ error: 'Invalid request' })
+            return
+        }
+        console.log(`Syncing ${tasks.length} tasks`)
+
+        const result = await syncTask(tasks)
+
+        res.json({
+            success: true,
+            saved: result.saved,
+            timestamp: Date.now()
+        })
+    } catch (err) {
+        console.error('Sync error:', err);
+        res.status(500).json({
+            err
+        })
+    }
+})
 export default route;

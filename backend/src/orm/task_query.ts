@@ -5,6 +5,15 @@ export interface TaskUpdate {
     label: string
 }
 
+export interface TaskInput {
+    client_id: string
+    id?: string
+    label: string
+    is_done: boolean
+    created_at: number
+    updated_at: number
+}
+
 export const getAllTask = async () => {
     const client = await pool.connect()
     const result = await client.query("SELECT * FROM Tasks");
@@ -19,6 +28,24 @@ export const createNewTask = async (task: TaskUpdate) => {
     client.release();
     return result.rows;
 
+}
+
+export const createManyTask = async (tasks: TaskInput[]) => {
+    if (tasks.length === 0) return []
+
+    const values = tasks.map((t) => [
+        t.client_id,
+        t.label,
+        t.is_done,
+        new Date(t.created_at),
+        new Date(t.updated_at)
+    ])
+
+    const query = format(`INSERT INTO tasks (client_id, lable, is_done, created_at, updated_at) VALUES %L RETURNING id, client_id, version`, values)
+    const client = await pool.connect();
+    const result = await client.query(query);
+    client.release()
+    return result.rows
 }
 
 export const selectTaskById = async (id: string | string[]) => {
@@ -44,6 +71,42 @@ export const updateTaskById = async (id: string | string[], update: TaskUpdate) 
     return result.rows;
 };
 
+export const updateManyTask = async (tasks: TaskInput[]) => {
+    if (tasks.length === 0) return []
+
+    const client = await pool.connect()
+
+    try {
+        await client.query('BEGIN')
+        const updated = []
+        for (const task of tasks) {
+            if (task.id) {
+                const result = await client.query(
+                    `UPDATE tasks 
+                    SET label = $1, is_done = $2, updated_at=$3, version = version + 1
+                    WHERE id = $4
+                    RETURNING id, client_id, version`,
+                    [task.label, task.is_done, , new Date(task.updated_at), task.id]
+                )
+
+                if (result.rows.length > 0) {
+                    updated.push(result.rows[0])
+                }
+            }
+        }
+
+        await client.query('COMMIT')
+        return updated
+    } catch (error) {
+        await client.query("ROLLBACK")
+        console.error("Transaction faile:", error)
+        throw error
+    } finally {
+        client.release()
+    }
+
+}
+
 export const deleteTaskById = async (id: string | string[]) => {
     const client = await pool.connect();
     const query = format("DELETE FROM Tasks WHERE id=%L", id);
@@ -51,3 +114,31 @@ export const deleteTaskById = async (id: string | string[]) => {
     client.release();
     return result.rows;
 };
+
+export const syncTask = async (tasks: TaskInput[]) => {
+    if (tasks.length === 0) return { saved: [] }
+
+    const toCreate: TaskInput[] = []
+    const toUpdate: TaskInput[] = []
+
+    for (const task of tasks) {
+        if (task.id) {
+            toUpdate.push(task)
+        } else {
+            toCreate.push(task)
+        }
+    }
+
+    const saved = []
+    if (toCreate.length > 0) {
+        const created = await createManyTask(toCreate)
+        saved.push(...created)
+    }
+
+    if (toUpdate.length > 0) {
+        const updated = await updateManyTask(toUpdate)
+        saved.push(...updated)
+    }
+
+    return { saved }
+}
