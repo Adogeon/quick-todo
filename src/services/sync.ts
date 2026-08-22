@@ -1,8 +1,8 @@
-import { taskDb, type Task } from "./localdb"
-
+import { taskDb } from "./localdb"
+import { type ClientTask } from "#/types/ClientTask"
 
 export const syncToServer = async () => {
-    const unsynced: Task[] = await taskDb.getUnsync()
+    const unsynced: ClientTask[] = await taskDb.getUnsync()
 
     console.log(unsynced)
 

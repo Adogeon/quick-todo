@@ -1,3 +1,4 @@
+import { type ClientTask } from "#/types/ClientTask"
 export interface Task {
     id: string,
     label: string,
@@ -26,8 +27,8 @@ class TaskDatabase {
                     const store = db.createObjectStore('tasks', { keyPath: 'id' })
 
                     store.createIndex('synced', 'synced', { unique: false })
-                    store.createIndex('createdAt', 'createdAt', { unique: false })
-                    store.createIndex('updatedAt', 'updatedAt', { unique: false })
+                    store.createIndex('created_date', 'created_date', { unique: false })
+                    store.createIndex('updated_date', 'updated_date', { unique: false })
                 }
             }
 
@@ -42,7 +43,7 @@ class TaskDatabase {
         })
     }
 
-    async getAll(): Promise<Task[]> {
+    async getAll(): Promise<ClientTask[]> {
         const db = await this.init()
 
         return new Promise((resolve, reject) => {
@@ -55,7 +56,7 @@ class TaskDatabase {
         })
     }
 
-    async getUnsync(): Promise<Task[]> {
+    async getUnsync(): Promise<ClientTask[]> {
         const db = await this.init()
         return new Promise((resolve, reject) => {
             const transaction = db.transaction('tasks', 'readonly')
@@ -68,7 +69,7 @@ class TaskDatabase {
         })
     }
 
-    async save(task: Task): Promise<void> {
+    async save(task: ClientTask): Promise<void> {
         const db = await this.init()
         return new Promise((resolve, reject) => {
             const transaction = db.transaction('tasks', 'readwrite')
@@ -80,7 +81,7 @@ class TaskDatabase {
         })
     }
 
-    async saveMany(tasks: Task[]): Promise<void> {
+    async saveMany(tasks: ClientTask[]): Promise<void> {
         const db = await this.init()
 
         return new Promise((resolve, reject) => {

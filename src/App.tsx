@@ -8,7 +8,8 @@ import {
 import { PlusIcon } from '@heroicons/react/24/outline'
 import TaskItem from './component/Task'
 import './App.css'
-import { taskDb, type Task } from './services/localdb.js'
+import { taskDb } from './services/localdb.js'
+import type { ClientTask } from './types/ClientTask.js'
 
 const useAddNewTask = () => {
   const [newTask, setNewTask] = useState('')
@@ -20,14 +21,14 @@ const useAddNewTask = () => {
 }
 
 function App() {
-  const [taskList, setTaskList] = useState<Task[]>([])
+  const [taskList, setTaskList] = useState<ClientTask[]>([])
   const [loading, setLoading] = useState(true)
   const todoList = useMemo(
-    () => taskList.filter((task) => !task.isDone),
+    () => taskList.filter((task) => !task.is_done),
     [taskList],
   )
   const doneList = useMemo(
-    () => taskList.filter((task) => task.isDone),
+    () => taskList.filter((task) => task.is_done),
     [taskList],
   )
   const { newTask, handleChange, reset } = useAddNewTask()
@@ -36,7 +37,7 @@ function App() {
     try {
       setLoading(true)
       const data = await taskDb.getAll()
-      data.sort((a, b) => b.createdAt - a.createdAt)
+      data.sort((a, b) => b.create_date - a.create_date)
       setTaskList(data)
     } catch (error) {
       console.error('Failed to laod todos: ', error)
@@ -56,12 +57,12 @@ function App() {
   const handleFormSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (newTask.trim() === '') return
-    let newTaskObj: Task = {
+    let newTaskObj: ClientTask = {
       id: crypto.randomUUID(),
       label: newTask,
-      isDone: false,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+      is_done: false,
+      create_date: Date.now(),
+      update_date: Date.now(),
       synced: 0,
     }
 
@@ -86,11 +87,13 @@ function App() {
 
   const onDone = async (taskId: string) => {
     try {
-      let taskObj: Task | undefined = taskList.find((t) => t.id === taskId)
+      let taskObj: ClientTask | undefined = taskList.find(
+        (t) => t.id === taskId,
+      )
       if (!taskObj) throw Error("Can't find the task with id")
       const update = {
         ...taskObj,
-        isDone: !taskObj.isDone,
+        isDone: !taskObj.is_done,
         updatedAt: Date.now(),
       }
       await taskDb.save(update)

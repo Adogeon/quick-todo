@@ -11,5 +11,5 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 }
 
 export async function down(pgm: MigrationBuilder): Promise<void> {
-    pgm.dropColumns('tasks', ['server_id', 'version', 'synced', 'deleted'])
+    pgm.dropColumns('tasks', ['client_id', 'version', 'synced'])
 }
