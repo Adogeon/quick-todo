@@ -14,6 +14,8 @@ class TaskDatabase {
     private version = 1
     private db: IDBDatabase | null = null
 
+
+
     async init(): Promise<IDBDatabase> {
         if (this.db) return this.db
 
@@ -44,45 +46,30 @@ class TaskDatabase {
         })
     }
 
-    async getActive(): Promise<ClientTask[]> {
+    private async getFilter(DBIndex: string, value: any): Promise<ClientTask[]> {
         const db = await this.init()
 
         return new Promise((resolve, reject) => {
             const transaction = db.transaction('tasks', 'readonly')
             const store = transaction.objectStore('tasks')
-            const index = store.index('is_delete')
-            const request = index.getAll(0)
+            const index = store.index(DBIndex)
+            const request = index.getAll(value)
 
             request.onsuccess = () => resolve(request.result)
             request.onerror = () => reject(request.error)
         })
+    }
+
+    async getActive(): Promise<ClientTask[]> {
+        return this.getFilter("is_delete", 0)
     }
 
     async getDelete(): Promise<ClientTask[]> {
-        const db = await this.init()
-
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction('tasks', 'readonly')
-            const store = transaction.objectStore('tasks')
-            const index = store.index('is_delete')
-            const request = index.getAll(1)
-
-            request.onsuccess = () => resolve(request.result)
-            request.onerror = () => reject(request.error)
-        })
+        return this.getFilter("is_delete", 1)
     }
 
     async getUnsync(): Promise<ClientTask[]> {
-        const db = await this.init()
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction('tasks', 'readonly')
-            const store = transaction.objectStore('tasks')
-            const index = store.index('synced')
-            const request = index.getAll(0)
-
-            request.onsuccess = () => resolve(request.result)
-            request.onerror = () => reject(request.error)
-        })
+        return this.getFilter("synced", 0)
     }
 
     async save(task: ClientTask): Promise<void> {
