@@ -1,36 +1,41 @@
 import { taskDb } from "./localdb"
-import { type ClientTask } from "#/types/ClientTask"
+import { type ClientTask, type TaskDOCommunicate } from "#/types/ClientTask"
 
 export const syncToServer = async () => {
     const unsynced: ClientTask[] = await taskDb.getUnsync()
-
-    console.log(unsynced)
 
     if (!unsynced || unsynced.length === 0) {
         console.log('Nothing to sync')
         return
     }
 
-    const response = await fetch('/api/todos/sync', {
+    const sync_payload: TaskDOCommunicate[] = unsynced.map((task): TaskDOCommunicate => {
+        const { synced, id, ...TaskDO } = task;
+        return { ...TaskDO, client_id: task.id }
+    })
+
+    const response = await fetch('/api/tasks/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ todos: unsynced })
+        body: JSON.stringify({ tasks: sync_payload })
     })
 
     if (!response.ok) {
         throw new Error('Sync Failed');
     }
-
-    const severTasks = await response.json()
-
+    const severResult = await response.json()
+    const severTasks = severResult.saved;
     for (const todo of unsynced) {
+        console.log(todo)
+        console.log(severTasks)
+        const syncedTask = severTasks.find((t: any) => t.client_id === todo.id)
 
-        const syncedTask = severTasks.find((t: any) => t.localId === todo.id)
+        console.log(syncedTask)
 
         const updated = {
             ...todo,
             synced: 1,
-            serverId: syncedTask.id
+            server_id: syncedTask.id
         }
         await taskDb.save(updated)
     }

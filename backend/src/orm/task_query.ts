@@ -10,8 +10,8 @@ export interface TaskInput {
     id?: string
     label: string
     is_done: boolean
-    created_at: number
-    updated_at: number
+    create_date: number
+    update_date: number
 }
 
 export const getAllTask = async () => {
@@ -37,11 +37,11 @@ export const createManyTask = async (tasks: TaskInput[]) => {
         t.client_id,
         t.label,
         t.is_done,
-        new Date(t.created_at),
-        new Date(t.updated_at)
+        new Date(t.create_date),
+        new Date(t.update_date)
     ])
 
-    const query = format(`INSERT INTO tasks (client_id, lable, is_done, created_at, updated_at) VALUES %L RETURNING id, client_id, version`, values)
+    const query = format(`INSERT INTO tasks (client_id, label, is_done, create_date, update_date) VALUES %L RETURNING id, client_id, version`, values)
     const client = await pool.connect();
     const result = await client.query(query);
     client.release()
@@ -83,10 +83,10 @@ export const updateManyTask = async (tasks: TaskInput[]) => {
             if (task.id) {
                 const result = await client.query(
                     `UPDATE tasks 
-                    SET label = $1, is_done = $2, updated_at=$3, version = version + 1
+                    SET label = $1, is_done = $2, update_date=$3, version = version + 1
                     WHERE id = $4
                     RETURNING id, client_id, version`,
-                    [task.label, task.is_done, , new Date(task.updated_at), task.id]
+                    [task.label, task.is_done, new Date(task.update_date), task.id]
                 )
 
                 if (result.rows.length > 0) {
@@ -116,6 +116,7 @@ export const deleteTaskById = async (id: string | string[]) => {
 };
 
 export const syncTask = async (tasks: TaskInput[]) => {
+    console.log(tasks)
     if (tasks.length === 0) return { saved: [] }
 
     const toCreate: TaskInput[] = []
@@ -139,6 +140,8 @@ export const syncTask = async (tasks: TaskInput[]) => {
         const updated = await updateManyTask(toUpdate)
         saved.push(...updated)
     }
+
+    console.log(saved)
 
     return { saved }
 }

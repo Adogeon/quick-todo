@@ -6,3 +6,8 @@ export interface ClientTask extends BaseTask {
     synced: number;
     server_id?: string
 }
+
+export interface TaskDOCommunicate extends BaseTask {
+    client_id?: string;
+    server_id?: string
+}

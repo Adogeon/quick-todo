@@ -49,6 +49,7 @@ route.delete('/:id', async (req: Request, res: Response) => {
 
 //sync
 route.post('/sync', async (req: Request, res: Response) => {
+    console.log("sync data received")
     try {
         const { tasks } = req.body
         if (!tasks || !Array.isArray(tasks)) {
@@ -58,6 +59,7 @@ route.post('/sync', async (req: Request, res: Response) => {
         console.log(`Syncing ${tasks.length} tasks`)
 
         const result = await syncTask(tasks)
+        console.log(result)
 
         res.json({
             success: true,
@@ -67,7 +69,7 @@ route.post('/sync', async (req: Request, res: Response) => {
     } catch (err) {
         console.error('Sync error:', err);
         res.status(500).json({
-            err
+            message: 'Sync error:' + err
         })
     }
 })

@@ -9,7 +9,10 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
         id: { type: 'uuid', primaryKey: true, default: new PgLiteral('gen_random_uuid()') },
         label: { type: 'varchar(1000)', notNull: true },
         is_done: { type: 'boolean', notNull: true, default: false },
-        createdAt: { type: 'timestamp', notNull: true, default: pgm.func('current_timestamp') }
+        create_date: {
+            type: 'timestamp', notNull: true, default: pgm.func('current_timestamp')
+        },
+        update_date: { type: 'timestamp', notNull: true, default: pgm.func('current_timestamp') }
     })
 }
 
