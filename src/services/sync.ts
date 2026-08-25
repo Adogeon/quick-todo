@@ -11,7 +11,7 @@ export const syncToServer = async () => {
 
     const sync_payload: TaskDOCommunicate[] = unsynced.map((task): TaskDOCommunicate => {
         const { synced, id, ...TaskDO } = task;
-        return { ...TaskDO, client_id: task.id }
+        return { ...TaskDO, client_id: task.id, is_delete: task.is_delete === 1 }
     })
 
     const response = await fetch('/api/tasks/sync', {

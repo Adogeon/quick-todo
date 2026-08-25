@@ -10,5 +10,6 @@ export interface ClientTask extends BaseTask {
 
 export interface TaskDOCommunicate extends BaseTask {
     client_id?: string;
-    server_id?: string
+    server_id?: string;
+    is_delete: boolean
 }

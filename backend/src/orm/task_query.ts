@@ -10,6 +10,7 @@ export interface TaskInput {
     id?: string
     label: string
     is_done: boolean
+    is_delete: boolean
     create_date: number
     update_date: number
 }
@@ -41,7 +42,7 @@ export const createManyTask = async (tasks: TaskInput[]) => {
         new Date(t.update_date)
     ])
 
-    const query = format(`INSERT INTO tasks (client_id, label, is_done, create_date, update_date) VALUES %L RETURNING id, client_id, version`, values)
+    const query = format(`INSERT INTO tasks (client_id, label, is_done, is_delete, create_date, update_date) VALUES %L RETURNING id, client_id, version`, values)
     const client = await pool.connect();
     const result = await client.query(query);
     client.release()
@@ -83,10 +84,10 @@ export const updateManyTask = async (tasks: TaskInput[]) => {
             if (task.id) {
                 const result = await client.query(
                     `UPDATE tasks 
-                    SET label = $1, is_done = $2, update_date=$3, version = version + 1
-                    WHERE id = $4
+                    SET label = $1, is_done = $2, update_date=$3, is_delete: $4 version = version + 1
+                    WHERE id = $5
                     RETURNING id, client_id, version`,
-                    [task.label, task.is_done, new Date(task.update_date), task.id]
+                    [task.label, task.is_done, new Date(task.update_date), task.is_delete, task.id]
                 )
 
                 if (result.rows.length > 0) {
