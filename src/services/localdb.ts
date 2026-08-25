@@ -27,8 +27,9 @@ class TaskDatabase {
                     const store = db.createObjectStore('tasks', { keyPath: 'id' })
 
                     store.createIndex('synced', 'synced', { unique: false })
-                    store.createIndex('created_date', 'created_date', { unique: false })
-                    store.createIndex('updated_date', 'updated_date', { unique: false })
+                    store.createIndex('is_delete', 'is_delete', { unique: false })
+                    store.createIndex('create_date', 'create_date', { unique: false })
+                    store.createIndex('update_date', 'update_date', { unique: false })
                 }
             }
 
@@ -43,13 +44,28 @@ class TaskDatabase {
         })
     }
 
-    async getAll(): Promise<ClientTask[]> {
+    async getActive(): Promise<ClientTask[]> {
         const db = await this.init()
 
         return new Promise((resolve, reject) => {
             const transaction = db.transaction('tasks', 'readonly')
             const store = transaction.objectStore('tasks')
-            const request = store.getAll()
+            const index = store.index('is_delete')
+            const request = index.getAll(0)
+
+            request.onsuccess = () => resolve(request.result)
+            request.onerror = () => reject(request.error)
+        })
+    }
+
+    async getDelete(): Promise<ClientTask[]> {
+        const db = await this.init()
+
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction('tasks', 'readonly')
+            const store = transaction.objectStore('tasks')
+            const index = store.index('is_delete')
+            const request = index.getAll(1)
 
             request.onsuccess = () => resolve(request.result)
             request.onerror = () => reject(request.error)

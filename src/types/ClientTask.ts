@@ -4,6 +4,7 @@ import type BaseTask from "../../types/BaseTask";
 export interface ClientTask extends BaseTask {
     id: UUID;
     synced: number;
+    is_delete: number;
     server_id?: string
 }
 

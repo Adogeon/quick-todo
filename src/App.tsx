@@ -36,7 +36,7 @@ function App() {
   const loadTasks = async () => {
     try {
       setLoading(true)
-      const data = await taskDb.getAll()
+      const data = await taskDb.getActive()
       data.sort((a, b) => b.create_date - a.create_date)
       setTaskList(data)
     } catch (error) {
@@ -63,6 +63,7 @@ function App() {
       is_done: false,
       create_date: Date.now(),
       update_date: Date.now(),
+      is_delete: 0,
       synced: 0,
     }
 
@@ -78,7 +79,17 @@ function App() {
 
   const onDelete = async (taskId: string) => {
     try {
-      await taskDb.delete(taskId)
+      let taskObj: ClientTask | undefined = taskList.find(
+        (t) => t.id === taskId,
+      )
+      if (!taskObj) throw Error("Can't find the task with id")
+      const update = {
+        ...taskObj,
+        is_delete: 1,
+        synced: 0,
+        update_date: Date.now(),
+      }
+      await taskDb.save(update)
       setTaskList((prev) => prev.filter((t) => t.id !== taskId))
     } catch (error) {
       console.log('Failed to delete task:', error)
@@ -95,7 +106,7 @@ function App() {
         ...taskObj,
         is_done: !taskObj.is_done,
         synced: 0,
-        updatedAt: Date.now(),
+        update_date: Date.now(),
       }
       await taskDb.save(update)
       setTaskList((prev) => prev.map((t) => (t.id === update.id ? update : t)))
