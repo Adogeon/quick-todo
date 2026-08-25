@@ -93,7 +93,8 @@ function App() {
       if (!taskObj) throw Error("Can't find the task with id")
       const update = {
         ...taskObj,
-        isDone: !taskObj.is_done,
+        is_done: !taskObj.is_done,
+        synced: 0,
         updatedAt: Date.now(),
       }
       await taskDb.save(update)
@@ -135,6 +136,7 @@ function App() {
                     onDelete(task.id)
                   }}
                   handleDone={() => {
+                    console.log('Finish task' + task.id)
                     onDone(task.id)
                   }}
                   isDone={false}
