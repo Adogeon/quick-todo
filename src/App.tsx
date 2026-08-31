@@ -5,11 +5,11 @@ import {
   type SubmitEvent,
   type ChangeEvent,
 } from 'react'
+import { useTodos } from './hooks/useTodo.js'
 import { PlusIcon } from '@heroicons/react/24/outline'
 import TaskItem from './component/Task'
 import './App.css'
 import { taskDb } from './services/localdb.js'
-import type { ClientTask } from './types/ClientTask.js'
 
 const useAddNewTask = () => {
   const [newTask, setNewTask] = useState('')
@@ -21,26 +21,18 @@ const useAddNewTask = () => {
 }
 
 function App() {
-  const [taskList, setTaskList] = useState<ClientTask[]>([])
+  const { tasks, loadActive, addTodo, toggleTodo, deleteTodo } = useTodos()
   const [loading, setLoading] = useState(true)
-  const todoList = useMemo(
-    () => taskList.filter((task) => !task.is_done),
-    [taskList],
-  )
-  const doneList = useMemo(
-    () => taskList.filter((task) => task.is_done),
-    [taskList],
-  )
+  const todoList = useMemo(() => tasks.filter((task) => !task.is_done), [tasks])
+  const doneList = useMemo(() => tasks.filter((task) => task.is_done), [tasks])
   const { newTask, handleChange, reset } = useAddNewTask()
 
   const loadTasks = async () => {
     try {
       setLoading(true)
-      const data = await taskDb.getActive()
-      data.sort((a, b) => b.create_date - a.create_date)
-      setTaskList(data)
+      loadActive()
     } catch (error) {
-      console.error('Failed to laod todos: ', error)
+      console.error('Failed to load todos: ', error)
     } finally {
       setLoading(false)
     }
@@ -57,62 +49,16 @@ function App() {
   const handleFormSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (newTask.trim() === '') return
-    let newTaskObj: ClientTask = {
-      id: crypto.randomUUID(),
-      label: newTask,
-      is_done: false,
-      create_date: Date.now(),
-      update_date: Date.now(),
-      is_delete: 0,
-      synced: 0,
-    }
-
-    try {
-      setTaskList((prev) => [newTaskObj, ...prev])
-      await taskDb.save(newTaskObj)
-    } catch (error) {
-      console.error('failed to add todo: ', error)
-    }
-
+    addTodo(newTask)
     reset()
   }
 
   const onDelete = async (taskId: string) => {
-    try {
-      let taskObj: ClientTask | undefined = taskList.find(
-        (t) => t.id === taskId,
-      )
-      if (!taskObj) throw Error("Can't find the task with id")
-      const update = {
-        ...taskObj,
-        is_delete: 1,
-        synced: 0,
-        update_date: Date.now(),
-      }
-      await taskDb.save(update)
-      setTaskList((prev) => prev.filter((t) => t.id !== taskId))
-    } catch (error) {
-      console.log('Failed to delete task:', error)
-    }
+    deleteTodo(taskId)
   }
 
   const onDone = async (taskId: string) => {
-    try {
-      let taskObj: ClientTask | undefined = taskList.find(
-        (t) => t.id === taskId,
-      )
-      if (!taskObj) throw Error("Can't find the task with id")
-      const update = {
-        ...taskObj,
-        is_done: !taskObj.is_done,
-        synced: 0,
-        update_date: Date.now(),
-      }
-      await taskDb.save(update)
-      setTaskList((prev) => prev.map((t) => (t.id === update.id ? update : t)))
-    } catch (error) {
-      console.log('Faild to update task:', error)
-    }
+    toggleTodo(taskId)
   }
 
   return (
