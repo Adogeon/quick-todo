@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useMemo } from 'react'
 
 interface AuthContextType {
   sessionToken: string | null
@@ -11,10 +11,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [sessionToken, setSessionToken] = useState<string | null>(null)
 
   useEffect(() => {
-    const sessionToken = localStorage.getItem('authToken')
+    const token = localStorage.getItem('authToken')
+    if (token) setSessionToken(token)
   }, [])
+
+  const isAuthenticated = useMemo(() => !!sessionToken, [sessionToken])
   return (
-    <AuthContext value={{ sessionToken, isAuthenticated: !!sessionToken }}>
+    <AuthContext value={{ sessionToken, isAuthenticated }}>
       {children}
     </AuthContext>
   )
