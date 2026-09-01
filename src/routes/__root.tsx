@@ -1,6 +1,6 @@
 import { Outlet, createRootRoute } from '@tanstack/react-router'
 import { AuthProvider } from '#/context/auth_context'
-import Header from '#/component/Layout/Tabs'
+import Layout from '#/component/Layout'
 
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
@@ -15,8 +15,9 @@ function RootComponent() {
   return (
     <>
       <AuthProvider>
-        <Header />
-        <Outlet />
+        <Layout>
+          <Outlet />
+        </Layout>
       </AuthProvider>
       <TanStackDevtools
         config={{

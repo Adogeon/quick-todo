@@ -1,12 +1,11 @@
 import type { ClientTask } from '#/types/ClientTask'
 import { useMemo } from 'react'
 import TaskItem from '../Task'
-import './TaskList.css'
 
 interface TaskListProps {
   tasks: ClientTask[]
-  onDone: (id: string) => void
-  onDelete: (id: string) => void
+  onDone?: (id: string) => void
+  onDelete?: (id: string) => void
 }
 
 const TaskList = ({ tasks, onDone, onDelete }: TaskListProps) => {
@@ -22,11 +21,14 @@ const TaskList = ({ tasks, onDone, onDelete }: TaskListProps) => {
                 <TaskItem
                   label={task.label}
                   handleDelete={() => {
-                    onDelete(task.id)
+                    if (onDelete) {
+                      onDelete(task.id)
+                    }
                   }}
                   handleDone={() => {
-                    console.log('Finish task' + task.id)
-                    onDone(task.id)
+                    if (onDone) {
+                      onDone(task.id)
+                    }
                   }}
                   isDone={false}
                 />
@@ -46,8 +48,12 @@ const TaskList = ({ tasks, onDone, onDelete }: TaskListProps) => {
                     <TaskItem
                       label={task.label}
                       isDone
-                      handleDelete={() => onDelete(task.id)}
-                      handleDone={() => onDone(task.id)}
+                      handleDelete={() => {
+                        if (onDelete) onDelete(task.id)
+                      }}
+                      handleDone={() => {
+                        if (onDone) onDone(task.id)
+                      }}
                     />
                   </li>
                 )

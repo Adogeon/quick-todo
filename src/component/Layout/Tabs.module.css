@@ -1,0 +1,103 @@
+.tabLink {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.tabIcon {
+    font-size: 1.125rem;
+}
+
+.tabLabel {
+    flex: 1;
+}
+
+.tabCount {
+    padding: 0 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 9999px;
+    transition: all 0.2s ease;
+}
+
+.mobileTabs {
+    display: flex;
+    gap: 0.25rem;
+    border-bottom: 1px solid #6c7086;
+}
+
+.mobileTabs .tabLink {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    font-size: 0.875rems;
+    color: #6c7086
+}
+
+.mobileTabs .tabLink:hover {
+    color: #a6adc8
+}
+
+.mobileTabs .active {
+    color: #cdd6f4;
+    border-bottom-color: #89b4fa;
+}
+
+.mobileTabs .active .tabCount {
+    background-color: #dbeafe;
+    color: #3b82f6
+}
+
+.mobileTabs .tabCount {
+    background-color: #e5e7eb;
+    color: #6b7280;
+}
+
+.desktopTabs {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem
+}
+
+.desktopTabs .tabLink {
+    padding: 0.625rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    color: #6c7086;
+}
+
+.desktopTabs .tabLink:hover {
+    color: #a6adc8
+}
+
+.desktopTabs .active {
+    color: #cdd6f4;
+    border-bottom-color: #89b4fa;
+}
+
+.desktopTabs .active .tabCount {
+    background-color: #dbeafe;
+    color: #3b82f6;
+}
+
+.desktopTabs .tabCount {
+    background-color: #e5e7eb;
+    color: #6b7280;
+}
+
+@media (min-width: 768px) {
+    .mobileTabs {
+        display: none
+    }
+}
+
+@media (max-width: 767px) {
+    .desktopTabs{
+        display: none
+    }
+}

@@ -1,21 +1,45 @@
 import { Link, useRouterState } from '@tanstack/react-router'
+import styles from './Tabs.module.css'
 
 const Tabs = () => {
+  const location = useRouterState({ select: (state) => state.location })
+  const currentPath = location.pathname
+
   return (
-    <div className="flex gap-1 border-b boreder-gray-200">
-      <Link
-        to="/"
-        className={`px-4 py-2 text-sm font-medium transition-colors relative`}
-      >
-        Active
-      </Link>
-      <Link
-        to="/trash"
-        className={`px-4 py-2 text-sm font-medium transition-colors relative`}
-      >
-        Trash
-      </Link>
-    </div>
+    <>
+      <div className={styles.mobileTabs}>
+        <Link to="/" className={styles.tabLink}>
+          <span
+            className={`${styles.tabLabel} ${currentPath === '/' ? styles.active : ''}`}
+          >
+            Active
+          </span>
+        </Link>
+        <Link to="/trash" className={styles.tabLink}>
+          <span
+            className={`${styles.tabLabel} ${currentPath === '/trash' ? styles.active : ''}`}
+          >
+            Trash
+          </span>
+        </Link>
+      </div>
+      <div className={styles.desktopTabs}>
+        <Link to="/" className={styles.tabLink}>
+          <span
+            className={`${styles.tabLabel} ${currentPath === '/' ? styles.active : ''}`}
+          >
+            Active
+          </span>
+        </Link>
+        <Link to="/trash" className={styles.tabLink}>
+          <span
+            className={`${styles.tabLabel} ${currentPath === '/trash' ? styles.active : ''}`}
+          >
+            Trash
+          </span>
+        </Link>
+      </div>
+    </>
   )
 }
 

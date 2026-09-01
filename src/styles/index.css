@@ -14,6 +14,10 @@ body {
   margin: 0;
 }
 
+#app {
+    width: 100vw;
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -21,8 +25,8 @@ body {
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: #cdd6f4;
+  background-color: #1e1e2e;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -45,7 +49,7 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #45475a;
   cursor: pointer;
   transition: border-color 0.25s;
   display: flex;
@@ -116,18 +120,18 @@ li {
 }
 
 .icon-button:hover {
-  background-color: #333; /* Slightly lighter background on hover */
+  background-color: #313244; /* Slightly lighter background on hover */
 }
 
 .icon {
   width: 1em;
   height: 1em;
-  color: #fff; /* White color for the icons */
+  color: #cdd6f4; /* White color for the icons */
   transition: color 0.25s;
 }
 
 .icon-button:hover .icon {
-  color: #f0f0f0; /* Lighter color on hover */
+  color: #9399b2; /* Lighter color on hover */
 }
 
 .add-button {

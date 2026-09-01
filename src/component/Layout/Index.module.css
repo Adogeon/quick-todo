@@ -1,0 +1,95 @@
+.container {
+    min-height: 100vh;
+}
+
+.mobileLayout {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.mobileHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.mobileTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.mobileContent {
+    margin-top: 1rem;
+}
+
+.mobileAuth {
+    font-size: 0.875rem;
+}
+
+.desktopLayout {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 256px;
+    background: #181825;
+    border-right: 1px solid #181825;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s ease;
+}
+
+.sidebarHeader {
+    padding: 1.5rem;
+    flex: 1;
+}
+
+.sidebarTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color:  #89b4fa;
+    margin-bottom: 2rem;
+}
+
+.sidebarFooter {
+    padding: 1rem;
+    border-top: 1px solid #181825
+}
+
+.mainContent {
+    margin-left: 256px;
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+    transition: margin-left 0.3s ease;
+}
+
+.contentWrapper {
+    max-width: 768px;
+    margin: 0 auto;
+}
+
+@media (max-width: 767px) {
+    .desktopLayout {
+        display: none;
+    }
+}
+
+@media (min-width: 768px) {
+    .mobileLayout {
+        display: none;
+    }
+}
+
+@media (min-width: 1024px) {
+    .contentWrapper{
+        max-width: 896px
+    }
+}
