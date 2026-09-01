@@ -1,5 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
-import App from '../App'
+import { useTodos } from '#/hooks/useTodo'
+import TaskInput from '#/component/Tasks/TaskInput'
+import TaskList from '#/component/Tasks/TaskList'
+import { useEffect } from 'react'
+import { taskDb } from '#/services/localdb'
 
 export const Route = createFileRoute('/')({
   loader: async () => {
@@ -21,13 +25,31 @@ export const Route = createFileRoute('/')({
   component: Home,
 })
 
+function ActiveView() {
+  const { tasks, loadActive, addTodo, toggleTodo, deleteTodo } = useTodos()
+
+  useEffect(() => {
+    loadActive()
+    ;() => {
+      taskDb.close()
+    }
+  }, [])
+
+  return (
+    <>
+      <TaskInput addTodo={addTodo} />
+      <TaskList tasks={tasks} onDelete={deleteTodo} onDone={toggleTodo} />
+    </>
+  )
+}
+
 function Home() {
   const data = Route.useLoaderData()
 
   return (
     <div className="p-8">
       <div>{data.apiStatus}</div>
-      <App />
+      <ActiveView />
     </div>
   )
 }

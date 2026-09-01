@@ -61,15 +61,15 @@ class TaskDatabase {
     }
 
     async getActive(): Promise<ClientTask[]> {
-        return this.getFilter("is_delete", 0)
+        return await this.getFilter("is_delete", 0)
     }
 
     async getDelete(): Promise<ClientTask[]> {
-        return this.getFilter("is_delete", 1)
+        return await this.getFilter("is_delete", 1)
     }
 
     async getUnsync(): Promise<ClientTask[]> {
-        return this.getFilter("synced", 0)
+        return await this.getFilter("synced", 0)
     }
 
     async save(task: ClientTask): Promise<void> {
