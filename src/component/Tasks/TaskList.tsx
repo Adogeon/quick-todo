@@ -1,14 +1,18 @@
 import type { ClientTask } from '#/types/ClientTask'
 import { useMemo } from 'react'
-import TaskItem from '../Task'
+import { ActiveTask, TrashTask } from '../TaskItem'
 
-interface TaskListProps {
+interface ActiveTaskListProps {
   tasks: ClientTask[]
-  onDone?: (id: string) => void
-  onDelete?: (id: string) => void
+  onDone: (id: string) => void
+  onDelete: (id: string) => void
 }
 
-const TaskList = ({ tasks, onDone, onDelete }: TaskListProps) => {
+export const ActiveTaskList = ({
+  tasks,
+  onDone,
+  onDelete,
+}: ActiveTaskListProps) => {
   const todoList = useMemo(() => tasks.filter((t) => !t.is_done), [tasks])
   const doneList = useMemo(() => tasks.filter((t) => t.is_done), [tasks])
   return (
@@ -18,20 +22,7 @@ const TaskList = ({ tasks, onDone, onDelete }: TaskListProps) => {
           {todoList.map((task, index) => {
             return (
               <li key={index}>
-                <TaskItem
-                  label={task.label}
-                  handleDelete={() => {
-                    if (onDelete) {
-                      onDelete(task.id)
-                    }
-                  }}
-                  handleDone={() => {
-                    if (onDone) {
-                      onDone(task.id)
-                    }
-                  }}
-                  isDone={false}
-                />
+                <ActiveTask task={task} onDelete={onDelete} onToggle={onDone} />
               </li>
             )
           })}
@@ -45,15 +36,10 @@ const TaskList = ({ tasks, onDone, onDelete }: TaskListProps) => {
               {doneList.map((task, index) => {
                 return (
                   <li key={index}>
-                    <TaskItem
-                      label={task.label}
-                      isDone
-                      handleDelete={() => {
-                        if (onDelete) onDelete(task.id)
-                      }}
-                      handleDone={() => {
-                        if (onDone) onDone(task.id)
-                      }}
+                    <ActiveTask
+                      task={task}
+                      onDelete={onDelete}
+                      onToggle={onDone}
                     />
                   </li>
                 )
@@ -66,4 +52,23 @@ const TaskList = ({ tasks, onDone, onDelete }: TaskListProps) => {
   )
 }
 
-export default TaskList
+interface TrashTaskListProps {
+  tasks: ClientTask[]
+  onRestore: (id: string) => void
+}
+
+export const TrashTaskList = ({ tasks, onRestore }: TrashTaskListProps) => {
+  return (
+    <section id="task-list">
+      <ul>
+        {tasks.map((task, index) => {
+          return (
+            <li key={index}>
+              <TrashTask task={task} onRestore={onRestore} />
+            </li>
+          )
+        })}
+      </ul>
+    </section>
+  )
+}

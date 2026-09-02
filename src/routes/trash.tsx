@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useTodos } from '@/hooks/useTodo'
-import TaskList from '#/component/Tasks/TaskList'
+import { TrashTaskList } from '#/component/Tasks/TaskList'
 import { useEffect } from 'react'
 import { taskDb } from '#/services/localdb'
 
@@ -9,7 +9,7 @@ export const Route = createFileRoute('/trash')({
 })
 
 function RouteComponent() {
-  const { tasks, loadTrash, restoreTodos } = useTodos()
+  const { tasks, loadTrash, restoreTodo } = useTodos()
 
   useEffect(() => {
     loadTrash()
@@ -21,7 +21,7 @@ function RouteComponent() {
 
   return (
     <>
-      <TaskList tasks={tasks} />
+      <TrashTaskList tasks={tasks} onRestore={restoreTodo} />
     </>
   )
 }

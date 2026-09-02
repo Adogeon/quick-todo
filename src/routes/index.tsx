@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useTodos } from '#/hooks/useTodo'
 import TaskInput from '#/component/Tasks/TaskInput'
-import TaskList from '#/component/Tasks/TaskList'
+import { ActiveTaskList } from '#/component/Tasks/TaskList'
 import { useEffect } from 'react'
 import { taskDb } from '#/services/localdb'
 
@@ -38,7 +38,7 @@ function ActiveView() {
   return (
     <>
       <TaskInput addTodo={addTodo} />
-      <TaskList tasks={tasks} onDelete={deleteTodo} onDone={toggleTodo} />
+      <ActiveTaskList tasks={tasks} onDelete={deleteTodo} onDone={toggleTodo} />
     </>
   )
 }
