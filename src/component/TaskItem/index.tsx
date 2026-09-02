@@ -47,7 +47,10 @@ export const ActiveTask = ({ task, onToggle, onDelete }: ActiveItemProps) => {
 
 export const TrashTask = ({ task, onRestore }: TrashItemProps) => {
   const handleRestore = () => {
-    if (confirm('Restore this task to active ?')) onRestore(task.id)
+    if (confirm('Restore this task to active ?')) {
+      console.log(task.id)
+      onRestore(task.id)
+    }
   }
 
   return (

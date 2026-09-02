@@ -9,11 +9,10 @@ export const Route = createFileRoute('/trash')({
 })
 
 function RouteComponent() {
-  const { tasks, loadTrash, restoreTodo } = useTodos()
+  const { trash, loadTrash, restoreTodo } = useTodos()
 
   useEffect(() => {
     loadTrash()
-
     return () => {
       taskDb.close()
     }
@@ -21,7 +20,7 @@ function RouteComponent() {
 
   return (
     <>
-      <TrashTaskList tasks={tasks} onRestore={restoreTodo} />
+      <TrashTaskList tasks={trash} onRestore={restoreTodo} />
     </>
   )
 }

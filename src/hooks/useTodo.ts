@@ -19,7 +19,7 @@ export function useTodos() {
     const loadTrash = async () => {
         try {
             const trashTask = await taskDb.getDelete()
-            setTasks(trashTask)
+            setTrash(trashTask)
         } catch (error) {
             console.error("Failed to load trash: " + error)
         }
@@ -89,7 +89,7 @@ export function useTodos() {
             let taskObj: ClientTask | undefined = trash.find(
                 (t) => t.id === id,
             )
-            if (!taskObj) throw Error("Can't find the task with id")
+            if (!taskObj) throw Error("Can't find the task with id" + id)
             const update = {
                 ...taskObj,
                 is_delete: 0,
