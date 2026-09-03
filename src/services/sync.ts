@@ -26,11 +26,7 @@ export const syncToServer = async () => {
     const severResult = await response.json()
     const severTasks = severResult.saved;
     for (const todo of unsynced) {
-        console.log(todo)
-        console.log(severTasks)
         const syncedTask = severTasks.find((t: any) => t.client_id === todo.id)
-
-        console.log(syncedTask)
 
         const updated = {
             ...todo,

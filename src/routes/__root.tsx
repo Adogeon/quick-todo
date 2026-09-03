@@ -1,5 +1,5 @@
 import { Outlet, createRootRoute } from '@tanstack/react-router'
-import { AuthProvider } from '#/context/auth_context'
+import { AuthProvider } from '#/context/authContext'
 import Layout from '#/component/Layout'
 
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'

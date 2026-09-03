@@ -15,8 +15,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-startSync(10000)
-
 const rootElement = document.getElementById('app')!
 
 if (!rootElement.innerHTML) {
