@@ -7,7 +7,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     pgm.createTable('users', {
         id: { type: 'uuid', primaryKey: true, default: new PgLiteral('gen_random_uuid()') },
         username: { type: 'varchar(1000)', notNull: true, unique: true },
-        hash: { type: 'boolean', notNull: true },
+        hash: { type: 'varchar(1000)', notNull: true },
         create_date: {
             type: 'timestamp', notNull: true, default: pgm.func('current_timestamp')
         },
