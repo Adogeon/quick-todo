@@ -30,9 +30,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const getToken = () => localStorage.getItem('authToken')
 
   const login = async (username: string, password: string) => {
-    const response = await fetch('/api/auth/login', {
+    const response = await fetch('/api/auth/signin', {
       method: 'POST',
-      headers: { 'Content-Type': 'applicaiton/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
     })
 

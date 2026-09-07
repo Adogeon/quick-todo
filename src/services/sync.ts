@@ -1,7 +1,7 @@
 import { taskDb } from "./localdb"
 import { type ClientTask, type TaskDOCommunicate } from "#/types/ClientTask"
 
-export const syncToServer = async () => {
+export const syncToServer = async (token: string) => {
     const unsynced: ClientTask[] = await taskDb.getUnsync()
 
     if (!unsynced || unsynced.length === 0) {
@@ -16,7 +16,7 @@ export const syncToServer = async () => {
 
     const response = await fetch('/api/tasks/sync', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ tasks: sync_payload })
     })
 
@@ -38,14 +38,14 @@ export const syncToServer = async () => {
 }
 
 let syncInterval: NodeJS.Timeout | null = null
-export const startSync = (intervalMs: number = 30000) => {
+export const startSync = (token: string, intervalMs: number = 30000) => {
     if (syncInterval) {
         clearInterval(syncInterval)
         syncInterval = null
     }
     console.log("Sync started")
-    syncToServer()
-    syncInterval = setInterval(syncToServer, intervalMs)
+    syncToServer(token)
+    syncInterval = setInterval(() => { syncToServer(token) }, intervalMs)
 }
 
 export const stopSync = () => {
