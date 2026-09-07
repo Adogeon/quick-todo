@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const token = localStorage.getItem('authToken')
     if (token) {
       setSessionToken(token)
-      startSync()
+      startSync(token)
     }
     setIsLoading(false)
   }, [])
@@ -43,7 +43,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const data = await response.json()
     localStorage.setItem('authToken', data.token)
-    startSync()
+    setSessionToken(data.token)
+    startSync(data.token)
   }
 
   const signup = async (username: string, password: string) => {
@@ -60,7 +61,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const data = await response.json()
     localStorage.setItem('authToken', data.token)
-    startSync()
+    setSessionToken(data.token)
+    startSync(data.token)
   }
 
   const logout = () => {

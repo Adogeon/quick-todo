@@ -28,7 +28,6 @@ export const createNewTask = async (task: TaskUpdate) => {
     const result = await client.query(query);
     client.release();
     return result.rows;
-
 }
 
 export const createManyTask = async (tasks: TaskInput[]) => {
@@ -38,6 +37,7 @@ export const createManyTask = async (tasks: TaskInput[]) => {
         t.client_id,
         t.label,
         t.is_done,
+        t.is_delete,
         new Date(t.create_date),
         new Date(t.update_date)
     ])
