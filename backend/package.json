@@ -9,7 +9,9 @@
     "build": "tsc",
     "type-check": "tsc --noEmit",
     "test": "todo",
-    "migrate": "node-pg-migrate -j ts"
+    "migrate": "node-pg-migrate -j ts",
+    "migrate:up": "node-pg-migrate up",
+    "migrate:down": "node-pg-migrate down"
   },
   "keywords": [
     "backend"
