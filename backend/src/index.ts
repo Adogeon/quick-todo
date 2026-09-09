@@ -4,7 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 import taskRoute from "./routes/task_route.js";
-import authRoute from './routes/auth.js'
+import authRoute, { tokenDecodeMiddleware } from './routes/auth.js'
 
 dotenv.config();
 
@@ -15,7 +15,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/api/tasks/', taskRoute);
+app.use('/api/tasks/', tokenDecodeMiddleware, taskRoute);
 app.use('/api/auth', authRoute);
 
 app.get('/api/health', (_req: Request, res: Response) => {

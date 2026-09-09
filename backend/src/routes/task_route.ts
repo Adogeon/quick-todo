@@ -1,17 +1,17 @@
 import Express from "express";
-import { type Request, type Response } from "express";
+import { type Response } from "express";
 import { getAllTask, selectTaskById, updateTaskById, createNewTask, deleteTaskById, syncTask } from "../orm/task_query.js";
-
+import { type AuthRequest } from "./auth.js";
 const route = Express();
 
 //get by id
-route.get("/", async (req: Request, res: Response) => {
+route.get("/", async (req: AuthRequest, res: Response) => {
     const result = await getAllTask();
     res.status(200).json(result);
 });
 
 //get by id
-route.get('/:id', async (req: Request, res: Response) => {
+route.get('/:id', async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
         const result = await selectTaskById(id ?? "");
@@ -22,14 +22,14 @@ route.get('/:id', async (req: Request, res: Response) => {
 })
 
 //create 
-route.post('/', async (req: Request, res: Response) => {
+route.post('/', async (req: AuthRequest, res: Response) => {
     const { data } = req.body;
     const result = await createNewTask(data);
     res.status(200).json(result);
 })
 
 //update
-route.put('/:id', async (req: Request, res: Response) => {
+route.put('/:id', async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
         const { data } = req.body;
@@ -41,17 +41,18 @@ route.put('/:id', async (req: Request, res: Response) => {
 })
 
 //delete
-route.delete('/:id', async (req: Request, res: Response) => {
+route.delete('/:id', async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const result = await deleteTaskById(id ?? "");
     res.status(200).json(result);
 })
 
 //sync
-route.post('/sync', async (req: Request, res: Response) => {
+route.post('/sync', async (req: AuthRequest, res: Response) => {
     console.log("sync data received")
     try {
         const { tasks } = req.body
+        console.log(tasks)
         if (!tasks || !Array.isArray(tasks)) {
             res.status(400).json({ error: 'Invalid request' })
             return

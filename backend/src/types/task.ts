@@ -25,7 +25,7 @@ export interface TaskInput {
 export interface SyncTaskInput {
     client_id: string
     server_id?: string
-    text: string
+    label: string
     is_done: boolean
     is_delete: boolean
     create_date: number

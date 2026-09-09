@@ -15,7 +15,7 @@
     // "types": ["node"],
     // and npm install -D @types/node
     "paths": {
-      "@types": [".\\types\\*"]
+      "@/types": ["src/types/*"]
     },
     // Other Outputs
     "sourceMap": true,
