@@ -1,56 +1,78 @@
 import Express from "express";
-import { type Response } from "express";
+import { type Response, type RequestHandler } from "express";
 import { getAllTask, selectTaskById, updateTaskById, createNewTask, deleteTaskById, syncTask } from "../orm/task_query.js";
 import { type AuthRequest } from "./auth.js";
 const route = Express();
 
-//get by id
-route.get("/", async (req: AuthRequest, res: Response) => {
-    const result = await getAllTask();
-    res.status(200).json(result);
-});
+const authHandler = (handler: (req: AuthRequest, res: Response) => Promise<void | Response> | void | Response) => {
+    return handler as RequestHandler
+}
 
 //get by id
-route.get('/:id', async (req: AuthRequest, res: Response) => {
+route.get("/", authHandler(async (req: AuthRequest, res: Response) => {
+    const { id } = req.user
+    const result = await getAllTask(id);
+    res.status(200).json(result);
+}));
+
+//get by id
+route.get('/:id', authHandler(async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
-        const result = await selectTaskById(id ?? "");
+
+        if (typeof id !== 'string') {
+            return res.status(400).json({ error: 'Invalid id parameter' })
+        }
+
+        const { id: userId } = req.user;
+
+        const result = await selectTaskById(id ?? "", userId);
         res.status(200).json(result);
     } catch (err) {
         res.status(404).json({ error: err })
     }
-})
+}))
 
 //create 
-route.post('/', async (req: AuthRequest, res: Response) => {
+route.post('/', authHandler(async (req: AuthRequest, res: Response) => {
     const { data } = req.body;
-    const result = await createNewTask(data);
+    const { id } = req.user;
+    const result = await createNewTask(data, id);
     res.status(200).json(result);
-})
+}))
 
 //update
-route.put('/:id', async (req: AuthRequest, res: Response) => {
+route.put('/:id', authHandler(async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
+        if (typeof id !== 'string') {
+            return res.status(400).json({ error: 'Invalid id parameter' })
+        }
+        const { id: userId } = req.user;
         const { data } = req.body;
-        const result = await updateTaskById(id ?? "", data);
+        const result = await updateTaskById(id, userId, data);
         res.status(200).json(result);
     } catch (err) {
         res.status(404).json({ error: err })
     }
-})
+}))
 
 //delete
-route.delete('/:id', async (req: AuthRequest, res: Response) => {
+route.delete('/:id', authHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
-    const result = await deleteTaskById(id ?? "");
+    if (typeof id !== 'string') {
+        return res.status(400).json({ error: 'Invalid id parameter' })
+    }
+    const { id: userId } = req.user
+    const result = await deleteTaskById(id, userId);
     res.status(200).json(result);
-})
+}))
 
 //sync
-route.post('/sync', async (req: AuthRequest, res: Response) => {
+route.post('/sync', authHandler(async (req: AuthRequest, res: Response) => {
     console.log("sync data received")
     try {
+        const { id: userId } = req.user;
         const { tasks } = req.body
         console.log(tasks)
         if (!tasks || !Array.isArray(tasks)) {
@@ -59,7 +81,7 @@ route.post('/sync', async (req: AuthRequest, res: Response) => {
         }
         console.log(`Syncing ${tasks.length} tasks`)
 
-        const result = await syncTask(tasks)
+        const result = await syncTask(tasks, userId)
         console.log(result)
 
         res.json({
@@ -73,5 +95,6 @@ route.post('/sync', async (req: AuthRequest, res: Response) => {
             message: 'Sync error:' + err
         })
     }
-})
+}))
+
 export default route;
