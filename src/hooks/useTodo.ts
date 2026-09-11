@@ -1,10 +1,19 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { taskDb } from '#/services/localdb'
 import { type ClientTask } from '#/types/ClientTask'
+import { useDebounceCallBack } from './useDebounce';
+import { syncToServer } from '#/services/sync';
+import { useAuth } from '#/context/authContext';
 
 export function useTodos() {
     const [tasks, setTasks] = useState<ClientTask[]>([]);
     const [trash, setTrash] = useState<ClientTask[]>([]);
+
+    const { sessionToken } = useAuth()
+    const triggerSync = useDebounceCallBack(() => {
+        if (!sessionToken) return
+        syncToServer(sessionToken)
+    }, 30_000)
 
     const loadActive = async () => {
         try {
@@ -32,6 +41,7 @@ export function useTodos() {
             is_done: false,
             create_date: Date.now(),
             update_date: Date.now(),
+            version: 1,
             is_delete: 0,
             synced: 0,
         }
@@ -39,11 +49,12 @@ export function useTodos() {
         try {
             setTasks((prev) => [newTaskObj, ...prev])
             await taskDb.save(newTaskObj)
+            triggerSync()
         } catch (error) {
             console.error('failed to add todo: ', error)
         }
 
-    }, [])
+    }, [triggerSync])
 
     const toggleTodo = useCallback(async (id: string) => {
         try {
@@ -55,14 +66,16 @@ export function useTodos() {
                 ...taskObj,
                 is_done: !taskObj.is_done,
                 synced: 0,
+                version: taskObj.version + 1,
                 update_date: Date.now(),
             }
             await taskDb.save(update)
+            triggerSync()
             setTasks((prev) => prev.map((t) => (t.id === update.id ? update : t)))
         } catch (error) {
             console.log('Faild to update task:', error)
         }
-    }, [tasks])
+    }, [tasks, triggerSync])
 
     const deleteTodo = useCallback(async (id: string) => {
         try {
@@ -74,15 +87,17 @@ export function useTodos() {
                 ...taskObj,
                 is_delete: 1,
                 synced: 0,
+                version: taskObj.version + 1,
                 update_date: Date.now(),
             }
             await taskDb.save(update)
             setTasks((prev) => prev.filter((t) => t.id !== id))
             setTrash((prev) => [update, ...prev])
+            triggerSync()
         } catch (error) {
             console.log('Failed to delete task:', error)
         }
-    }, [tasks])
+    }, [tasks, triggerSync])
 
     const restoreTodo = useCallback(async (id: string) => {
         try {
@@ -94,15 +109,17 @@ export function useTodos() {
                 ...taskObj,
                 is_delete: 0,
                 synced: 0,
+                version: taskObj.version + 1,
                 update_date: Date.now(),
             }
             await taskDb.save(update)
             setTrash((prev) => prev.filter((t) => t.id !== id))
             setTasks((prev) => [update, ...prev])
+            triggerSync()
         } catch (error) {
             console.log('Failed to delete task:', error)
         }
-    }, [trash])
+    }, [trash, triggerSync])
 
     const permanentDelete = useCallback(async (id: string) => {
         setTrash(prev => prev.filter(t => t.id !== id))

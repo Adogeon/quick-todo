@@ -7,6 +7,7 @@ export interface Task {
     updatedAt: number
     synced: number
     serverId?: string
+    version: number
 }
 
 class TaskDatabase {
