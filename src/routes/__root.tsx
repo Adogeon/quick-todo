@@ -6,6 +6,7 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import '../styles/index.css'
+import { TaskProvider } from '#/context/taskContext'
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -15,9 +16,11 @@ function RootComponent() {
   return (
     <>
       <AuthProvider>
-        <Layout>
-          <Outlet />
-        </Layout>
+        <TaskProvider>
+          <Layout>
+            <Outlet />
+          </Layout>
+        </TaskProvider>
       </AuthProvider>
       <TanStackDevtools
         config={{
