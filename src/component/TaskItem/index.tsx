@@ -16,6 +16,7 @@ interface ActiveItemProps extends BaseTaskItemProps {
 
 interface TrashItemProps extends BaseTaskItemProps {
   onRestore: (id: string) => void
+  onDelete: (id: string) => void
 }
 
 export const ActiveTask = ({ task, onToggle, onDelete }: ActiveItemProps) => {
@@ -45,11 +46,16 @@ export const ActiveTask = ({ task, onToggle, onDelete }: ActiveItemProps) => {
   )
 }
 
-export const TrashTask = ({ task, onRestore }: TrashItemProps) => {
+export const TrashTask = ({ task, onRestore, onDelete }: TrashItemProps) => {
   const handleRestore = () => {
     if (confirm('Restore this task to active ?')) {
-      console.log(task.id)
       onRestore(task.id)
+    }
+  }
+
+  const handleDelete = () => {
+    if (confirm('Permannent delete this tasks ?')) {
+      onDelete(task.id)
     }
   }
 
@@ -60,9 +66,16 @@ export const TrashTask = ({ task, onRestore }: TrashItemProps) => {
         <button
           onClick={handleRestore}
           className="icon-button"
-          aria-label="Delete task"
+          aria-label="Restore task"
         >
           <ArrowPathRoundedSquareIcon className="icon" />
+        </button>
+        <button
+          onClick={handleDelete}
+          className="icon-button"
+          aria-label="Delete task"
+        >
+          <TrashIcon className="icon" />
         </button>
       </span>
     </div>

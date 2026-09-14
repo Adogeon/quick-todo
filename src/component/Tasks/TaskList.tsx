@@ -55,16 +55,25 @@ export const ActiveTaskList = ({
 interface TrashTaskListProps {
   tasks: ClientTask[]
   onRestore: (id: string) => void
+  onDelete: (id: string) => void
 }
 
-export const TrashTaskList = ({ tasks, onRestore }: TrashTaskListProps) => {
+export const TrashTaskList = ({
+  tasks,
+  onRestore,
+  onDelete,
+}: TrashTaskListProps) => {
   return (
     <section id="task-list">
       <ul>
         {tasks.map((task, index) => {
           return (
             <li key={index}>
-              <TrashTask task={task} onRestore={onRestore} />
+              <TrashTask
+                task={task}
+                onRestore={onRestore}
+                onDelete={onDelete}
+              />
             </li>
           )
         })}
