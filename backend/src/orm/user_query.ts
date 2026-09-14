@@ -31,3 +31,13 @@ export const verifyUser = async (user: AuthData) => {
 
     return { is_verify: true, user_id: result.rows[0].id };
 }
+
+export const isUserExist = async (id: string) => {
+    const client = await pool.connect()
+    const result = await client.query("SELECT id FROM users WHERE id=$1", [id])
+    if (result.rows.length !== 1) {
+        return false
+    }
+    else return true
+
+}
