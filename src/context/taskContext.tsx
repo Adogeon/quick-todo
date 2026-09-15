@@ -7,6 +7,7 @@ import type { ClientTask } from '#/types/ClientTask'
 interface TaskContextType {
   tasks: ClientTask[]
   trash: ClientTask[]
+  triggerSync: () => Promise<void>
   loadActive: () => Promise<void>
   loadTrash: () => Promise<void>
   addTodo: (text: string) => Promise<void>
@@ -149,6 +150,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         tasks,
         trash,
+        triggerSync,
         loadActive,
         loadTrash,
         addTodo,

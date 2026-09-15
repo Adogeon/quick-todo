@@ -1,10 +1,12 @@
 import Tabs from './Tabs'
 import styles from './Index.module.css'
 import { useAuth } from '#/context/authContext'
+import { useTodos } from '#/context/taskContext'
 import { Link } from '@tanstack/react-router'
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, logout } = useAuth()
+  const { triggerSync } = useTodos()
 
   return (
     <div className={styles.container}>
@@ -40,12 +42,20 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           </div>
           <div className={styles.sidebarFooter}>
             {isAuthenticated ? (
-              <button
-                onClick={logout}
-                className="text-sm text-red-500 hover:text-red-700 transition-colors"
-              >
-                Logout
-              </button>
+              <>
+                <button
+                  onClick={triggerSync}
+                  className="text-sm hover:text-green-700 transition-colors bg-transparent"
+                >
+                  Sync
+                </button>
+                <button
+                  onClick={logout}
+                  className="text-sm text-red-500 hover:text-red-700 transition-colors bg-transparent"
+                >
+                  Logout
+                </button>
+              </>
             ) : (
               <Link
                 to="/login"

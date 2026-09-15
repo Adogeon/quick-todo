@@ -15,24 +15,31 @@ const AuthContext = createContext<AuthContextType | null>(null)
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [sessionToken, setSessionToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const isAuthenticated = useMemo(() => !!sessionToken, [sessionToken])
 
   useEffect(() => {
-    if (!isOnline) {
-      setIsLoading(false)
-      return
-    }
-
-    const token = localStorage.getItem('authToken')
-    if (token) {
-      verifyToken(token).catch(() => {
-        logout()
+    isOnline()
+      .then((result) => {
+        if (result) {
+          const token = localStorage.getItem('authToken')
+          if (token) {
+            verifyToken(token)
+              .then((value) => {
+                localStorage.setItem('authToken', value)
+                setSessionToken(value)
+                startSync(value)
+              })
+              .catch((err) => {
+                console.error(err)
+                logout()
+              })
+          }
+        }
       })
-      startSync(token)
-    }
-    setIsLoading(false)
+      .finally(() => {
+        setIsLoading(false)
+      })
   }, [])
-
-  const isAuthenticated = useMemo(() => !!sessionToken, [sessionToken])
 
   const getToken = () => localStorage.getItem('authToken')
 
@@ -54,8 +61,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     const data = await response.json()
-    localStorage.setItem('authToken', data.token)
-    setSessionToken(data.token)
+    localStorage.setItem('authToken', data.newToken)
+    setSessionToken(data.newToken)
+    return data.newToken as string
   }
 
   const login = async (username: string, password: string) => {
