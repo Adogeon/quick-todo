@@ -3,6 +3,7 @@ import styles from './Index.module.css'
 import { useAuth } from '#/context/authContext'
 import { useTodos } from '#/context/taskContext'
 import { Link } from '@tanstack/react-router'
+import SyncStatus from './SyncStatus'
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, logout } = useAuth()
@@ -43,12 +44,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           <div className={styles.sidebarFooter}>
             {isAuthenticated ? (
               <>
-                <button
-                  onClick={triggerSync}
-                  className="text-sm hover:text-green-700 transition-colors bg-transparent"
-                >
-                  Sync
-                </button>
+                <SyncStatus />
                 <button
                   onClick={logout}
                   className="text-sm text-red-500 hover:text-red-700 transition-colors bg-transparent"

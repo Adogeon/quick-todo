@@ -7,6 +7,7 @@ import type { ClientTask } from '#/types/ClientTask'
 interface TaskContextType {
   tasks: ClientTask[]
   trash: ClientTask[]
+  isSyncing: boolean
   triggerSync: () => Promise<void>
   loadActive: () => Promise<void>
   loadTrash: () => Promise<void>
@@ -22,11 +23,14 @@ const TaskContext = createContext<TaskContextType | null>(null)
 export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   const [tasks, setTasks] = useState<ClientTask[]>([])
   const [trash, setTrash] = useState<ClientTask[]>([])
+  const [isSyncing, setIsSyncing] = useState<boolean>(false)
 
   const { sessionToken } = useAuth()
   const triggerSync = useDebounceCallBack(() => {
     if (!sessionToken) return
-    syncToServer(sessionToken)
+    syncToServer(sessionToken).finally(() => {
+      setIsSyncing(false)
+    })
   }, 30_000)
 
   const loadActive = async () => {
@@ -64,6 +68,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         setTasks((prev) => [newTaskObj, ...prev])
         await taskDb.save(newTaskObj)
+        setIsSyncing(true)
         triggerSync()
       } catch (error) {
         console.error('failed to add todo: ', error)
@@ -85,6 +90,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
           update_date: Date.now(),
         }
         await taskDb.save(update)
+        setIsSyncing(true)
         triggerSync()
         setTasks((prev) => prev.map((t) => (t.id === update.id ? update : t)))
       } catch (error) {
@@ -109,6 +115,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
         await taskDb.save(update)
         setTasks((prev) => prev.filter((t) => t.id !== id))
         setTrash((prev) => [update, ...prev])
+        setIsSyncing(true)
         triggerSync()
       } catch (error) {
         console.log('Failed to delete task:', error)
@@ -132,6 +139,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
         await taskDb.save(update)
         setTrash((prev) => prev.filter((t) => t.id !== id))
         setTasks((prev) => [update, ...prev])
+        setIsSyncing(true)
         triggerSync()
       } catch (error) {
         console.log('Failed to delete task:', error)
@@ -150,6 +158,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         tasks,
         trash,
+        isSyncing,
         triggerSync,
         loadActive,
         loadTrash,

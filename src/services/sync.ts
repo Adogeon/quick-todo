@@ -38,7 +38,7 @@ export const syncToServer = async (token: string) => {
 }
 
 let syncInterval: NodeJS.Timeout | null = null
-export const startSync = (token: string, intervalMs: number = 300000) => {
+export const startSync = (token: string, intervalMs: number = 1800000) => {
     if (syncInterval) {
         clearInterval(syncInterval)
         syncInterval = null
