@@ -1,6 +1,37 @@
 import { taskDb } from "./localdb"
 import { type ClientTask, type TaskDOCommunicate } from "#/types/ClientTask"
 
+export const syncFromServer = async (token: string) => {
+    const response = await fetch('/api/tasks/', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+    })
+
+    const result = await response.json()
+    const ServerTasks = result.tasks
+    const ClientTask = await taskDb.getAll()
+    let newTasks: any[] = [];
+    let newTrashes: any[] = [];
+
+    for (const task of ServerTasks) {
+        const newTask = ClientTask.find((t) => t.id !== task.client_id);
+        if (newTask !== undefined) {
+            const updated = {
+                ...task,
+                synced: 1,
+            }
+            if (updated.is_delete) {
+                newTrashes.push(updated)
+            } else {
+                newTasks.push(updated)
+            }
+            await taskDb.save(updated)
+        }
+    }
+
+    return { newTrashes, newTasks }
+}
+
 export const syncToServer = async (token: string) => {
     const unsynced: ClientTask[] = await taskDb.getUnsync()
 
