@@ -12,7 +12,7 @@ const authHandler = (handler: (req: AuthRequest, res: Response) => Promise<void 
 route.get("/", authHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.user
     const result = await getAllTask(id);
-    res.status(200).json(result);
+    res.status(200).json({ tasks: result });
 }));
 
 //get by id
@@ -27,7 +27,7 @@ route.get('/:id', authHandler(async (req: AuthRequest, res: Response) => {
         const { id: userId } = req.user;
 
         const result = await selectTaskById(id ?? "", userId);
-        res.status(200).json(result);
+        res.status(200).json({ task: result });
     } catch (err) {
         res.status(404).json({ error: err })
     }
