@@ -15,8 +15,6 @@ class TaskDatabase {
     private version = 1
     private db: IDBDatabase | null = null
 
-
-
     async init(): Promise<IDBDatabase> {
         if (this.db) return this.db
 
@@ -49,12 +47,23 @@ class TaskDatabase {
 
     private async getFilter(DBIndex: string, value: any): Promise<ClientTask[]> {
         const db = await this.init()
-
         return new Promise((resolve, reject) => {
             const transaction = db.transaction('tasks', 'readonly')
             const store = transaction.objectStore('tasks')
             const index = store.index(DBIndex)
             const request = index.getAll(value)
+
+            request.onsuccess = () => resolve(request.result)
+            request.onerror = () => reject(request.error)
+        })
+    }
+
+    async getAll(): Promise<ClientTask[]> {
+        const db = await this.init()
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction('tasks', 'readonly')
+            const store = transaction.objectStore('tasks');
+            const request = store.getAll()
 
             request.onsuccess = () => resolve(request.result)
             request.onerror = () => reject(request.error)
