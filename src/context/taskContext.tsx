@@ -31,7 +31,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     syncToServer(sessionToken).finally(() => {
       setIsSyncing(false)
     })
-  }, 30_000)
+  }, 60_000)
 
   const loadActive = async () => {
     try {
