@@ -10,26 +10,32 @@ export const syncFromServer = async (token: string) => {
     const result = await response.json()
     const ServerTasks = result.tasks
     const ClientTask = await taskDb.getAll()
-    let newTasks: any[] = [];
-    let newTrashes: any[] = [];
+    let toSave: any[] = [];
 
-    for (const task of ServerTasks) {
-        const newTask = ClientTask.find((t) => t.id !== task.client_id);
-        if (newTask !== undefined) {
-            const updated = {
-                ...task,
-                synced: 1,
-            }
-            if (updated.is_delete) {
-                newTrashes.push(updated)
-            } else {
-                newTasks.push(updated)
-            }
-            await taskDb.save(updated)
-        }
+    const localTaskById = new Map<string, ClientTask>()
+    for (const t of ClientTask) {
+        if (t.server_id) localTaskById.set(t.server_id, t)
     }
 
-    return { newTrashes, newTasks }
+    for (const serverT of ServerTasks) {
+        const local = localTaskById.get(serverT.id)
+        if (local) {
+            toSave.push({
+                ...local,
+                id: crypto.randomUUID(),
+                server_id: serverT.id,
+                is_delete: serverT.is_delete ? 1 : 0,
+                update_date: serverT.update_date,
+                version: serverT.version,
+                synced: 1
+            })
+            continue
+        }
+
+        toSave.push(serverT)
+    }
+    await taskDb.saveMany(toSave)
+    return toSave
 }
 
 export const syncToServer = async (token: string) => {
