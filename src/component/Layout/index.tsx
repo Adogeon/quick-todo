@@ -6,7 +6,7 @@ import { Link } from '@tanstack/react-router'
 import SyncStatus from './SyncStatus'
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, logout } = useAuth()
+  const { isLogin, logout } = useAuth()
   const { triggerSync } = useTodos()
 
   return (
@@ -15,7 +15,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <header className={styles.mobileHeader}>
           <h1 className={styles.mobileTitle}>Quick Todo</h1>
           <div className={styles.mobileAuth}>
-            {isAuthenticated ? (
+            {isLogin ? (
               <button
                 onClick={logout}
                 className="text-red-500 hover:text-red-700 transition-colors"
@@ -42,7 +42,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <Tabs />
           </div>
           <div className={styles.sidebarFooter}>
-            {isAuthenticated ? (
+            {isLogin ? (
               <>
                 <SyncStatus />
                 <button

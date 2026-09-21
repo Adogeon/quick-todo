@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState, useMemo } from 'react'
-import { startSync, stopSync } from '#/services/sync'
+import { startSync, stopSync, syncFromServer } from '#/services/sync'
 interface AuthContextType {
   sessionToken: string | null
-  isAuthenticated: boolean
+  isLogin: boolean
   isLoading: boolean
   login: (username: string, password: string) => Promise<void>
   signup: (username: string, password: string) => Promise<void>
@@ -15,38 +15,27 @@ const AuthContext = createContext<AuthContextType | null>(null)
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [sessionToken, setSessionToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const isAuthenticated = useMemo(() => !!sessionToken, [sessionToken])
+  const [isLogin, setIsLogin] = useState<boolean>(false)
 
   useEffect(() => {
-    isOnline()
-      .then((result) => {
-        if (result) {
-          const token = localStorage.getItem('authToken')
-          if (token) {
-            verifyToken(token)
-              .then((value) => {
-                localStorage.setItem('authToken', value)
-                setSessionToken(value)
-                startSync(value)
-              })
-              .catch((err) => {
-                console.error(err)
-                logout()
-              })
-          }
-        }
-      })
-      .finally(() => {
-        setIsLoading(false)
-      })
+    const token = localStorage.getItem('authToken')
+    if (token) {
+      verifyToken(token)
+        .then((value) => {
+          localStorage.setItem('authToken', value)
+          setSessionToken(value)
+          syncFromServer(value)
+          startSync(value)
+          setIsLogin(true)
+        })
+        .catch((err) => {
+          console.error(err)
+          setIsLogin(false)
+        })
+    }
   }, [])
 
   const getToken = () => localStorage.getItem('authToken')
-
-  const isOnline = async () => {
-    const response = await fetch('api/health')
-    return response.ok
-  }
 
   const verifyToken = async (token: string) => {
     const response = await fetch('/api/auth/verify', {
@@ -81,6 +70,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const data = await response.json()
     localStorage.setItem('authToken', data.token)
     setSessionToken(data.token)
+    setIsLogin(true)
     startSync(data.token)
   }
 
@@ -99,6 +89,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const data = await response.json()
     localStorage.setItem('authToken', data.token)
     setSessionToken(data.token)
+    setIsLogin(true)
     startSync(data.token)
   }
 
@@ -106,13 +97,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.removeItem('authToken')
     setSessionToken(null)
     stopSync()
+    setIsLogin(false)
   }
 
   return (
     <AuthContext
       value={{
         sessionToken,
-        isAuthenticated,
+        isLogin,
         isLoading,
         getToken,
         login,
