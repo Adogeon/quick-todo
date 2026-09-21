@@ -4,8 +4,8 @@ import { useTodos } from '#/context/taskContext'
 const Tabs = () => {
   const location = useRouterState({ select: (state) => state.location })
   const currentPath = location.pathname
-  const { tasks, trash } = useTodos()
-  const activeCount = tasks.length
+  const { active, trash } = useTodos()
+  const activeCount = active.length
   const trashCount = trash.length
 
   return (

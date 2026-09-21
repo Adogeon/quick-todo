@@ -1,9 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useTodos } from '#/context/taskContext'
+import { useAuth } from '#/context/authContext'
 import TaskInput from '#/component/Tasks/TaskInput'
 import { ActiveTaskList } from '#/component/Tasks/TaskList'
-import { useEffect } from 'react'
-import { taskDb } from '#/services/localdb'
 
 export const Route = createFileRoute('/')({
   loader: async () => {
@@ -26,19 +25,17 @@ export const Route = createFileRoute('/')({
 })
 
 function ActiveView() {
-  const { tasks, loadActive, addTodo, toggleTodo, deleteTodo } = useTodos()
-
-  useEffect(() => {
-    loadActive()
-    ;() => {
-      taskDb.close()
-    }
-  }, [])
+  const { active, loadFromLocal, addTodo, toggleTodo, deleteTodo } = useTodos()
+  const { isLogin } = useAuth()
 
   return (
     <>
       <TaskInput addTodo={addTodo} />
-      <ActiveTaskList tasks={tasks} onDelete={deleteTodo} onDone={toggleTodo} />
+      <ActiveTaskList
+        tasks={active}
+        onDelete={deleteTodo}
+        onDone={toggleTodo}
+      />
     </>
   )
 }

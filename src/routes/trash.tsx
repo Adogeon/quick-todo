@@ -9,14 +9,7 @@ export const Route = createFileRoute('/trash')({
 })
 
 function RouteComponent() {
-  const { trash, loadTrash, restoreTodo, permanentDelete } = useTodos()
-
-  useEffect(() => {
-    loadTrash()
-    return () => {
-      taskDb.close()
-    }
-  }, [])
+  const { trash, restoreTodo, permanentDelete } = useTodos()
 
   return (
     <>
