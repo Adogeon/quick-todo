@@ -5,12 +5,14 @@ import {
   useContext,
   useReducer,
   useMemo,
+  useEffect,
 } from 'react'
 import { taskDb } from '#/services/localdb'
 import { useDebounceCallBack } from '#/hooks/useDebounce'
 import { syncToServer } from '#/services/sync'
-import { useAuth } from '#/hooks/useAuth'
+import { useAuth } from '#/context/authContext'
 import type { ClientTask } from '#/types/ClientTask'
+
 interface TaskContextType {
   active: ClientTask[]
   trash: ClientTask[]
@@ -49,6 +51,11 @@ function taskReducer(state: TaskState, action: TaskAction): TaskState {
       if (!action.payload || !Array.isArray(action.payload)) return state
       const newTasks = [...state.tasks, ...action.payload]
       return { tasks: newTasks.sort((a, b) => b.create_date - a.create_date) }
+    case 'RELOAD_WHOLE':
+      if (!action.payload || !Array.isArray(action.payload)) return state
+      return {
+        tasks: action.payload.sort((a, b) => b.create_date - a.create_date),
+      }
     case 'UPDATE_ONE':
       if (
         !action.payload ||
@@ -76,23 +83,31 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   const [isSyncing, setIsSyncing] = useState<boolean>(false)
   const active = useMemo(() => tasks.filter((t) => !t.is_delete), [tasks])
   const trash = useMemo(() => tasks.filter((t) => t.is_delete), [tasks])
-  const { token: sessionToken, isLogin } = useAuth()
+  const { sessionToken, isLogin } = useAuth()
 
   const triggerSync = useDebounceCallBack(() => {
-    if (isLogin) return
-    syncToServer(sessionToken).finally(() => {
-      setIsSyncing(false)
-    })
+    if (!sessionToken) return
+    syncToServer(sessionToken)
+      .catch((error) => {
+        console.error(error)
+      })
+      .finally(() => {
+        setIsSyncing(false)
+      })
   }, 60_000)
 
-  const loadFromLocal = async () => {
+  const loadFromLocal = useCallback(async () => {
     try {
       const tasks = await taskDb.getAll()
-      dispatch({ type: 'ADD_MANY', payload: tasks })
+      dispatch({ type: 'RELOAD_WHOLE', payload: tasks })
     } catch (error) {
       console.error('Failled to load tasks: ' + error)
     }
-  }
+  }, [isLogin])
+
+  useEffect(() => {
+    loadFromLocal()
+  }, [loadFromLocal])
 
   const addTodo = useCallback(
     async (text: string) => {
