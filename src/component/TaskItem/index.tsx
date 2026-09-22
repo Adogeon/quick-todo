@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { type ClientTask } from '#/types/ClientTask'
 import {
   TrashIcon,
@@ -32,7 +31,7 @@ export const ActiveTask = ({ task, onToggle, onDelete }: ActiveItemProps) => {
         checked={task.is_done}
         className="w-4 h-4 cursor-pointer"
       />
-      <span>{task.label}</span>
+      <span className="mx-2">{task.label}</span>
       <span className="task-buttons">
         <button
           onClick={handleDelete}

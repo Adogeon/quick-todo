@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useTodos } from '#/context/taskContext'
-import { useAuth } from '#/context/authContext'
 import TaskInput from '#/component/Tasks/TaskInput'
 import { ActiveTaskList } from '#/component/Tasks/TaskList'
 
@@ -25,8 +24,7 @@ export const Route = createFileRoute('/')({
 })
 
 function ActiveView() {
-  const { active, loadFromLocal, addTodo, toggleTodo, deleteTodo } = useTodos()
-  const { isLogin } = useAuth()
+  const { active, addTodo, toggleTodo, deleteTodo } = useTodos()
 
   return (
     <>
