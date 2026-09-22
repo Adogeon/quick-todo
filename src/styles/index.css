@@ -164,14 +164,11 @@ li {
   position: absolute;
   right: 0;
   margin: 0.5em;
-  gap: 0.5em; /* Space between the buttons */
+  gap: 0.5em; 
 }
 
 .task:hover .task-buttons {
   display: flex;
-}
-.task.done:hover .task-buttons {
-  display: none;
 }
 
 .separator {
