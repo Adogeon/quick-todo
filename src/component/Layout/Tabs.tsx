@@ -25,10 +25,7 @@ const Tabs = () => {
           <span
             className={`${styles.tabLabel} ${currentPath === '/trash' ? styles.active : ''}`}
           >
-            Trash
-            {trashCount > 0 && (
-              <span className={styles.tabCount}>{trashCount}</span>
-            )}
+            Archive
           </span>
         </Link>
       </div>
@@ -47,11 +44,8 @@ const Tabs = () => {
           <span
             className={`${styles.tabLabel} ${currentPath === '/trash' ? styles.active : ''}`}
           >
-            Trash
+            Archive
           </span>
-          {trashCount > 0 && (
-            <span className={styles.tabCount}>{trashCount}</span>
-          )}
         </Link>
       </div>
     </>
