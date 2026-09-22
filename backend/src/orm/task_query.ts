@@ -2,6 +2,22 @@ import pool from '../database.js';
 import format from 'pg-format';
 import { type ServerTask, type SyncTaskInput, type TaskInput } from '../types/task.js'
 
+export const purgeExpiredTrash = async (userId: string) => {
+    const client = await pool.connect()
+    try {
+        const result = await client.query(
+            `DELETE FROM Tasks WHERE user_id = $1
+                AND is_delete = true
+                AND delete_at < NOW() - INTERVAL '30 days'
+            RETURNING id`,
+            [userId]
+        )
+        return result.rows.map(r => r.id) as string[]
+    } finally {
+        client.release();
+    }
+}
+
 export const getAllTask = async (userId: string) => {
     const client = await pool.connect()
     try {

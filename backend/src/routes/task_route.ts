@@ -1,6 +1,6 @@
 import Express from "express";
 import { type Response, type RequestHandler } from "express";
-import { getAllTask, selectTaskById, updateTaskById, createNewTask, deleteTaskById, syncTask } from "../orm/task_query.js";
+import { getAllTask, selectTaskById, updateTaskById, createNewTask, deleteTaskById, syncTask, purgeExpiredTrash } from "../orm/task_query.js";
 import { type AuthRequest } from "./auth.js";
 const route = Express();
 
@@ -11,8 +11,9 @@ const authHandler = (handler: (req: AuthRequest, res: Response) => Promise<void 
 //get by id
 route.get("/", authHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.user
+    const purge = await purgeExpiredTrash(id)
     const result = await getAllTask(id);
-    res.status(200).json({ tasks: result });
+    res.status(200).json({ tasks: result, purgeIds: purge });
 }));
 
 //get by id
