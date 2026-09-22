@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, useMemo } from 'react'
 import { startSync, stopSync, syncFromServer } from '#/services/sync'
+import { taskDb } from '#/services/localdb'
 interface AuthContextType {
   sessionToken: string | null
   isLogin: boolean
@@ -70,6 +71,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const data = await response.json()
     localStorage.setItem('authToken', data.token)
     setSessionToken(data.token)
+    await taskDb.deleteAll()
+    await syncFromServer(data.token)
     setIsLogin(true)
     startSync(data.token)
   }
@@ -89,6 +92,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const data = await response.json()
     localStorage.setItem('authToken', data.token)
     setSessionToken(data.token)
+    await taskDb.deleteAll()
+    await syncFromServer(data.token)
     setIsLogin(true)
     startSync(data.token)
   }
