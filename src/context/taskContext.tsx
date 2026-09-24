@@ -12,7 +12,7 @@ import { useDebounceCallBack } from '#/hooks/useDebounce'
 import { syncToServer } from '#/services/sync'
 import { useAuth } from '#/context/authContext'
 import type { ClientTask } from '#/types/ClientTask'
-
+import { toEpoch } from '#/utils/time'
 interface TaskContextType {
   active: ClientTask[]
   trash: ClientTask[]
@@ -50,11 +50,17 @@ function taskReducer(state: TaskState, action: TaskAction): TaskState {
     case 'ADD_MANY':
       if (!action.payload || !Array.isArray(action.payload)) return state
       const newTasks = [...state.tasks, ...action.payload]
-      return { tasks: newTasks.sort((a, b) => b.create_date - a.create_date) }
+      return {
+        tasks: newTasks.sort(
+          (a, b) => toEpoch(b.create_date) - toEpoch(a.create_date),
+        ),
+      }
     case 'RELOAD_WHOLE':
       if (!action.payload || !Array.isArray(action.payload)) return state
       return {
-        tasks: action.payload.sort((a, b) => b.create_date - a.create_date),
+        tasks: action.payload.sort(
+          (a, b) => toEpoch(b.create_date) - toEpoch(a.create_date),
+        ),
       }
     case 'UPDATE_ONE':
       if (
@@ -115,8 +121,8 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
         id: crypto.randomUUID(),
         label: text,
         is_done: false,
-        create_date: Date.now(),
-        update_date: Date.now(),
+        create_date: new Date().toISOString(),
+        update_date: new Date().toISOString(),
         version: 1,
         is_delete: 0,
         synced: 0,
@@ -144,7 +150,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
           is_done: !taskObj.is_done,
           synced: 0,
           version: taskObj.version + 1,
-          update_date: Date.now(),
+          update_date: new Date().toISOString(),
         }
         dispatch({ type: 'UPDATE_ONE', payload: update })
         await taskDb.save(update)
@@ -167,7 +173,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
           is_delete: 1,
           synced: 0,
           version: taskObj.version + 1,
-          update_date: Date.now(),
+          update_date: new Date().toISOString(),
         }
         dispatch({ type: 'UPDATE_ONE', payload: update })
         await taskDb.save(update)
@@ -190,7 +196,7 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
           is_delete: 0,
           synced: 0,
           version: taskObj.version + 1,
-          update_date: Date.now(),
+          update_date: new Date().toISOString(),
         }
         dispatch({ type: 'UPDATE_ONE', payload: update })
         await taskDb.save(update)
