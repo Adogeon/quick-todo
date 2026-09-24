@@ -1,6 +1,6 @@
 import pool from '../database.js';
 import format from 'pg-format';
-import { type ServerTask, type SyncTaskInput, type TaskInput } from '../types/task.js'
+import type { ServerTask, ClientTaskDTO } from '../types/task.js'
 
 export const purgeExpiredTrash = async (userId: string) => {
     const client = await pool.connect()
@@ -28,7 +28,7 @@ export const getAllTask = async (userId: string) => {
     }
 };
 
-export const createNewTask = async (task: TaskInput, userId: string) => {
+export const createNewTask = async (task: ClientTaskDTO | Pick<ClientTaskDTO, 'label' | 'user_id'>, userId: string) => {
     const client = await pool.connect();
     try {
         const result = await client.query("INSERT INTO Tasks (label, user_id) VALUES ($1, $2)", [task.label, userId]);
@@ -39,7 +39,7 @@ export const createNewTask = async (task: TaskInput, userId: string) => {
     }
 }
 
-export const createManyTask = async (tasks: SyncTaskInput[], userId: string) => {
+export const createManyTask = async (tasks: ClientTaskDTO[], userId: string) => {
     if (tasks.length === 0) return []
 
     const values = tasks.map((t) => [
@@ -75,7 +75,7 @@ export const selectTaskById = async (id: string, userId: string) => {
     }
 };
 
-type TaskUpdate = Partial<Pick<TaskInput, 'label' | 'is_done' | 'is_delete'>>
+type TaskUpdate = Partial<ClientTaskDTO>
 export const updateTaskById = async (id: string, userId: string, update: TaskUpdate) => {
     const fields: string[] = []
     const values: any[] = []
@@ -120,7 +120,7 @@ export const updateTaskById = async (id: string, userId: string, update: TaskUpd
 };
 
 type ManyUpdateReturn = Pick<ServerTask, 'id' | 'client_id' | 'version'>
-export const updateManyTask = async (tasks: SyncTaskInput[], userId: string) => {
+export const updateManyTask = async (tasks: ClientTaskDTO[], userId: string) => {
     if (tasks.length === 0) return []
 
     const client = await pool.connect()
@@ -172,11 +172,11 @@ export const deleteTaskById = async (id: string, userId: string) => {
     }
 };
 
-export const syncTask = async (tasks: SyncTaskInput[], userId: string) => {
+export const syncTask = async (tasks: ClientTaskDTO[], userId: string) => {
     if (tasks.length === 0) return { saved: [] }
 
-    const toCreate: TaskInput[] = []
-    const toUpdate: TaskInput[] = []
+    const toCreate: ClientTaskDTO[] = []
+    const toUpdate: ClientTaskDTO[] = []
 
     for (const task of tasks) {
         if (task.server_id) {

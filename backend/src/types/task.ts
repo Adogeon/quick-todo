@@ -1,35 +1,24 @@
-export interface ServerTask {
+interface BaseTask {
+    label: string,
+    user_id: string,
+    is_done: boolean,
+    create_date: string,
+    update_date: string,
+    version: number,
+    is_delete: boolean,
+}
+export interface ServerTask extends BaseTask {
     id: string
-    client_id: string
-    user_id: string
-    label: string
-    is_done: boolean
+    client_id?: string
     is_delete: boolean
-    create_date: Date
-    update_date: Date
-    delete_at?: Date
+    delete_at?: string
     synced: boolean
-    version: number
 }
 
-export interface TaskInput {
-    client_id: string
-    label: string
-    is_done: boolean
-    is_delete: boolean
-    create_date: number
-    update_date: number
-    delete_at?: number
-}
-
-export interface SyncTaskInput {
-    client_id: string
+export interface ClientTaskDTO extends BaseTask {
     server_id?: string
-    label: string
-    is_done: boolean
-    is_delete: boolean
-    create_date: number
-    update_date: number
-    delete_at?: number
+    client_id: string
+    delete_at?: string
 }
+
 
