@@ -132,10 +132,10 @@ export const updateManyTask = async (tasks: ClientTaskDTO[], userId: string) => 
             if (task.server_id) {
                 const result = await client.query(
                     `UPDATE tasks 
-                    SET label = $1, is_done = $2, update_date=$3, is_delete=$4, client_id=$5, version = version + 1
+                    SET label = $1, is_done = $2, update_date=$3, is_delete=$4, client_id=$5, version = $8
                     WHERE id = $6 AND user_id = $7
                     RETURNING id, client_id, version`,
-                    [task.label, task.is_done, new Date(task.update_date), task.is_delete, task.client_id, task.server_id, userId]
+                    [task.label, task.is_done, new Date(task.update_date), task.is_delete, task.client_id, task.server_id, userId, task.version]
                 )
 
                 if (result.rows.length > 0) {
