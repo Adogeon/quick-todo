@@ -14,7 +14,7 @@ export const pushToServer = async (token: string): Promise<number> => {
         }
     })
 
-    const response = await fetch(`/api/tasks/synce`, {
+    const response = await fetch(`/api/tasks/sync`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

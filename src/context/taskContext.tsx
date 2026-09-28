@@ -8,8 +8,7 @@ import {
   useEffect,
 } from 'react'
 import { taskDb } from '#/services/localdb'
-import { useDebounceCallBack } from '#/hooks/useDebounce'
-import { syncToServer } from '#/services/sync'
+import { triggerPush } from '#/services/sync/scheduler'
 import { useAuth } from '#/context/authContext'
 import type { ClientTask } from '#/types/ClientTask'
 import { toEpoch } from '#/utils/time'
@@ -17,7 +16,6 @@ interface TaskContextType {
   active: ClientTask[]
   trash: ClientTask[]
   isSyncing: boolean
-  triggerSync: () => Promise<void>
   loadFromLocal: () => Promise<void>
   addTodo: (text: string) => Promise<void>
   toggleTodo: (id: string) => Promise<void>
@@ -91,17 +89,6 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   const trash = useMemo(() => tasks.filter((t) => t.is_delete), [tasks])
   const { sessionToken, isLogin } = useAuth()
 
-  const triggerSync = useDebounceCallBack(() => {
-    if (!sessionToken) return
-    syncToServer(sessionToken)
-      .catch((error) => {
-        console.error(error)
-      })
-      .finally(() => {
-        setIsSyncing(false)
-      })
-  }, 60_000)
-
   const loadFromLocal = useCallback(async () => {
     try {
       const tasks = await taskDb.getAll()
@@ -109,36 +96,34 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       console.error('Failled to load tasks: ' + error)
     }
-  }, [isLogin])
+  }, [])
 
   useEffect(() => {
+    console.log(isLogin)
     loadFromLocal()
-  }, [loadFromLocal])
+  }, [isLogin])
 
-  const addTodo = useCallback(
-    async (text: string) => {
-      let newTaskObj: ClientTask = {
-        id: crypto.randomUUID(),
-        label: text,
-        is_done: false,
-        create_date: new Date().toISOString(),
-        update_date: new Date().toISOString(),
-        version: 1,
-        is_delete: 0,
-        synced: 0,
-      }
+  const addTodo = useCallback(async (text: string) => {
+    let newTaskObj: ClientTask = {
+      id: crypto.randomUUID(),
+      label: text,
+      is_done: false,
+      create_date: new Date().toISOString(),
+      update_date: new Date().toISOString(),
+      version: 1,
+      is_delete: 0,
+      synced: 0,
+    }
 
-      try {
-        dispatch({ type: 'ADD_ONE', payload: newTaskObj })
-        await taskDb.save(newTaskObj)
-        setIsSyncing(true)
-        triggerSync()
-      } catch (error) {
-        console.error('failed to add todo: ', error)
-      }
-    },
-    [triggerSync],
-  )
+    try {
+      dispatch({ type: 'ADD_ONE', payload: newTaskObj })
+      await taskDb.save(newTaskObj)
+      setIsSyncing(true)
+      triggerPush(sessionToken)
+    } catch (error) {
+      console.error('failed to add todo: ', error)
+    }
+  }, [])
 
   const toggleTodo = useCallback(
     async (id: string) => {
@@ -155,12 +140,15 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
         dispatch({ type: 'UPDATE_ONE', payload: update })
         await taskDb.save(update)
         setIsSyncing(true)
-        triggerSync()
+        triggerPush(sessionToken, () => {
+          setIsSyncing(false)
+        })
       } catch (error) {
         console.log('Faild to update task:', error)
+      } finally {
       }
     },
-    [tasks, triggerSync],
+    [tasks],
   )
 
   const deleteTodo = useCallback(
@@ -178,12 +166,12 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
         dispatch({ type: 'UPDATE_ONE', payload: update })
         await taskDb.save(update)
         setIsSyncing(true)
-        triggerSync()
+        triggerPush(sessionToken)
       } catch (error) {
         console.log('Failed to delete task:', error)
       }
     },
-    [tasks, triggerSync],
+    [tasks],
   )
 
   const restoreTodo = useCallback(
@@ -201,12 +189,12 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
         dispatch({ type: 'UPDATE_ONE', payload: update })
         await taskDb.save(update)
         setIsSyncing(true)
-        triggerSync()
+        triggerPush(sessionToken)
       } catch (error) {
         console.log('Failed to delete task:', error)
       }
     },
-    [trash, triggerSync],
+    [trash],
   )
 
   const permanentDelete = useCallback(async (id: string) => {
@@ -220,7 +208,6 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
         active,
         trash,
         isSyncing,
-        triggerSync,
         loadFromLocal,
         addTodo,
         toggleTodo,

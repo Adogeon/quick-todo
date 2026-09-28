@@ -15,18 +15,26 @@ export interface ConflicPolicy {
 export const serverPriority: ConflicPolicy = {
     name: 'server-priority',
     resolve(local, server) {
-        return {
-            local: {
-                ...local,
-                server_id: server.id,
-                label: server.label,
-                is_done: server.is_done,
-                is_delete: server.is_delete ? 1 : 0,
-                update_date: server.update_date,
-                version: server.version,
-                synced: 1
-            },
-            push: false
+        if (local.version !== server.version) {
+            return {
+                local: {
+                    ...local,
+                    server_id: server.id,
+                    label: server.label,
+                    is_done: server.is_done,
+                    is_delete: server.is_delete ? 1 : 0,
+                    update_date: server.update_date,
+                    version: server.version,
+                    synced: 1
+                },
+                push: false
+            }
+        }
+        else {
+            return {
+                local,
+                push: false
+            }
         }
     }
 }

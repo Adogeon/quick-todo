@@ -1,0 +1,1 @@
+export const toEpoch = (d: string | Date): number => new Date(d).getTime()

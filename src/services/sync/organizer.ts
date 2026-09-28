@@ -32,26 +32,34 @@ export const syncWithServer = async (token: string, option: SyncOptions = {}) =>
     }
 
     option.onProgress?.('merging')
+
     const locals = await taskDb.getAll()
-    const localByServerId = new Map<string, ClientTask>()
-    for (const t of locals) {
-        if (t.server_id) localByServerId.set(t.server_id, t)
-    }
-
-    const toSave: ClientTask[] = []
+    let toSave: ClientTask[] = []
     const toRepush: string[] = []
-
-    for (const server of serverTasks) {
-        const local = localByServerId.get(server.id)
-
-        if (local) {
-            const decision = policy.resolve(local, server)
-            if (decision.local) toSave.push(decision.local)
-            if (decision.push) toRepush.push(local.id)
-            continue
+    if (locals.length > 0) {
+        const localByServerId = new Map<string, ClientTask>()
+        for (const t of locals) {
+            if (t.server_id) localByServerId.set(t.server_id, t)
         }
-        toSave.push(serverToClient(server))
+
+
+        for (const server of serverTasks) {
+            const local = localByServerId.get(server.id)
+
+            if (local) {
+                if (local.version != server.version) {
+                    const decision = policy.resolve(local, server)
+                    if (decision.local) toSave.push(decision.local)
+                    if (decision.push) toRepush.push(local.id)
+                }
+                continue
+            }
+            toSave.push(serverToClient(server))
+        }
+    } else {
+        toSave = serverTasks.map(t => serverToClient(t))
     }
+    console.log(toSave)
     await taskDb.saveMany(toSave)
 
     option.onProgress?.('pushing')

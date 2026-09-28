@@ -1,8 +1,9 @@
 import { createContext, useContext, useEffect, useState, useMemo } from 'react'
-import { startSync, stopSync, syncFromServer } from '#/services/sync'
+import { startSync, stopSync } from '#/services/sync/scheduler'
+import { syncWithServer } from '#/services/sync/organizer'
 import { taskDb } from '#/services/localdb'
 interface AuthContextType {
-  sessionToken: string | null
+  sessionToken: string
   isLogin: boolean
   isLoading: boolean
   login: (username: string, password: string) => Promise<void>
@@ -14,18 +15,18 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null)
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [sessionToken, setSessionToken] = useState<string | null>(null)
+  const [sessionToken, setSessionToken] = useState<string>('')
   const [isLoading, setIsLoading] = useState(true)
   const [isLogin, setIsLogin] = useState<boolean>(false)
 
   useEffect(() => {
     const token = localStorage.getItem('authToken')
+    console.log(token)
     if (token) {
       verifyToken(token)
         .then((value) => {
           localStorage.setItem('authToken', value)
           setSessionToken(value)
-          syncFromServer(value)
           startSync(value)
           setIsLogin(true)
         })
@@ -72,9 +73,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem('authToken', data.token)
     setSessionToken(data.token)
     await taskDb.deleteAll()
-    await syncFromServer(data.token)
+    await syncWithServer(data.token)
     setIsLogin(true)
-    startSync(data.token)
   }
 
   const signup = async (username: string, password: string) => {
@@ -88,21 +88,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const error = await response.json()
       throw new Error(error.message || 'Signup failed')
     }
-
     const data = await response.json()
     localStorage.setItem('authToken', data.token)
     setSessionToken(data.token)
     await taskDb.deleteAll()
-    await syncFromServer(data.token)
+    await syncWithServer(data.token)
     setIsLogin(true)
     startSync(data.token)
   }
 
   const logout = () => {
     localStorage.removeItem('authToken')
-    setSessionToken(null)
-    stopSync()
+    setSessionToken('')
     setIsLogin(false)
+    stopSync()
   }
 
   return (

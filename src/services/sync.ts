@@ -1,7 +1,6 @@
 import { taskDb } from "./localdb"
 import { type ClientTask, type TaskDOCommunicate } from "#/types/ClientTask"
-
-const toEpoch = (d: string | Date): number => new Date(d).getTime()
+import { toEpoch } from "#/utils/time"
 
 export const syncFromServer = async (token: string) => {
     const response = await fetch('/api/tasks/', {
