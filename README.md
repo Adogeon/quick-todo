@@ -1,6 +1,8 @@
 # QuickTodo
 
 **QuickTodo** is a simple and efficient to-do list application built with React and TypeScript. It provides a user-friendly interface for managing tasks, allowing users to easily add, mark as done, and delete tasks.
+## Features:
+- Task can be saved locally and sync across different browser 
 
 ## Installation
 
@@ -17,7 +19,7 @@ npm start
 
 Consider adding the following features to expand QuickTodo:
 
-- **Persistent Storage:** Implement a backend service to store tasks in a database or use localStorage/IndexedDB for client-side storage.
+- [x]**Persistent Storage:** Implement a backend service to store tasks in a database and use localStorage/IndexedDB for client-side storage with sync functionality for both.
 - **Reminders:** Add functionality to set reminders or due dates for tasks, and integrate with notification systems.
 - **Task Contexts:** Allow categorization of tasks into different contexts or projects with filters to view tasks by context.
 - **User Authentication:** Support multiple users with authentication, allowing for personal task management.
